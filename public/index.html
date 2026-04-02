@@ -294,7 +294,25 @@
 <div class="space-y-6 lg:space-y-8">
 <div>
 <label class="block text-[9px] lg:text-[10px] font-bold font-sans text-outline-variant uppercase tracking-widest mb-2">Spell Title</label>
-<input class="w-full bg-transparent border-0 focus:ring-0 text-on-surface font-serif text-2xl lg:text-xl p-0 py-2 lg:py-1 border-b border-outline-variant/20 focus:border-primary transition-all" id="sheetTitle" name="title" type="text" value=""/>
+<input class="w-full bg-transparent border-0 focus:ring-0 text-on-surface font-serif text-2xl lg:text-xl p-0 py-2 lg:py-1 border-b border-outline-variant/20 focus:border-primary transition-all" id="sheetTitle" name="title" placeholder="Name your spell..." type="text" value=""/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+<p class="text-[9px] font-bold font-sans uppercase tracking-widest text-outline-variant mb-2">Last Edited</p>
+<p class="text-sm font-serif text-on-surface" id="sheetMetaUpdated">Waiting for first save</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+<p class="text-[9px] font-bold font-sans uppercase tracking-widest text-outline-variant mb-2">Usage Count</p>
+<p class="text-sm font-serif text-on-surface" id="sheetMetaUsage">0 copies</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+<p class="text-[9px] font-bold font-sans uppercase tracking-widest text-outline-variant mb-2">Category</p>
+<p class="text-sm font-serif text-on-surface" id="sheetMetaCategory">Uncategorised</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+<p class="text-[9px] font-bold font-sans uppercase tracking-widest text-outline-variant mb-2">Created</p>
+<p class="text-sm font-serif text-on-surface" id="sheetMetaCreated">Draft mode</p>
+</div>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 <div>
@@ -323,7 +341,7 @@
 </div>
 <div>
 <label class="block text-[9px] lg:text-[10px] font-bold font-sans text-outline-variant uppercase tracking-widest mb-2">Logic Matrix</label>
-<textarea class="w-full bg-surface-container-lowest border-0 focus:ring-0 text-primary font-mono text-xs p-4 leading-relaxed resize-none border border-outline-variant/10 focus:border-primary transition-all" id="sheetBody" name="body" rows="10"></textarea>
+<textarea class="w-full bg-surface-container-lowest border-0 focus:ring-0 text-primary font-mono text-xs p-4 leading-relaxed resize-none border border-outline-variant/10 focus:border-primary transition-all" id="sheetBody" name="body" placeholder="# system_prompt&#10;Describe the prompt logic you want to preserve..." rows="10"></textarea>
 </div>
 <div>
 <div class="flex items-center justify-between gap-4 mb-3">

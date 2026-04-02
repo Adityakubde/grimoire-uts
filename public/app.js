@@ -80,6 +80,20 @@ function timeAgo(date) {
   return new Date(date).toLocaleDateString();
 }
 
+function formatFullDate(date) {
+  if (!date) {
+    return 'Not available';
+  }
+
+  return new Date(date).toLocaleString([], {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
 function normaliseTags(tags) {
   const incoming = Array.isArray(tags)
     ? tags
@@ -309,6 +323,30 @@ function renderTagList() {
     .join('');
 }
 
+function renderPromptMeta(prompt) {
+  const updatedEl = document.getElementById('sheetMetaUpdated');
+  const usageEl = document.getElementById('sheetMetaUsage');
+  const categoryEl = document.getElementById('sheetMetaCategory');
+  const createdEl = document.getElementById('sheetMetaCreated');
+
+  if (!updatedEl || !usageEl || !categoryEl || !createdEl) {
+    return;
+  }
+
+  if (!prompt) {
+    updatedEl.textContent = 'Waiting for first save';
+    usageEl.textContent = '0 copies';
+    categoryEl.textContent = 'Uncategorised';
+    createdEl.textContent = 'Draft mode';
+    return;
+  }
+
+  updatedEl.textContent = formatFullDate(prompt.updatedAt);
+  usageEl.textContent = `${prompt.usageCount || 0} ${(prompt.usageCount || 0) === 1 ? 'copy' : 'copies'}`;
+  categoryEl.textContent = prompt.category?.name || 'Uncategorised';
+  createdEl.textContent = formatFullDate(prompt.createdAt);
+}
+
 function renderRatingStars(rating) {
   const stars = document.getElementById('sheetStars');
   const ratingInput = document.getElementById('sheetRating');
@@ -440,6 +478,7 @@ function openPrompt(id) {
   activePromptTags = [...(prompt.tags || [])];
   renderTagList();
   renderRatingStars(prompt.rating || 0);
+  renderPromptMeta(prompt);
   resetCopyButton();
   showDetails();
 }
@@ -454,6 +493,7 @@ function openNewPrompt() {
   activePromptTags = [];
   renderTagList();
   renderRatingStars(0);
+  renderPromptMeta(null);
   resetCopyButton();
   showDetails();
 }
@@ -654,6 +694,7 @@ function bindEvents() {
   const modelFilter = document.getElementById('modelFilter');
   const sortFilter = document.getElementById('sortFilter');
   const clearFiltersButton = document.getElementById('clearFiltersBtn');
+  const sheetCategory = document.getElementById('sheetCategory');
 
   if (searchInput) {
     searchInput.addEventListener('input', onSearch);
@@ -676,11 +717,23 @@ function bindEvents() {
   if (clearFiltersButton) {
     clearFiltersButton.addEventListener('click', clearFilters);
   }
+
+  if (sheetCategory) {
+    sheetCategory.addEventListener('change', (event) => {
+      const categoryEl = document.getElementById('sheetMetaCategory');
+      const selectedOption = event.target.options[event.target.selectedIndex];
+
+      if (categoryEl) {
+        categoryEl.textContent = selectedOption ? selectedOption.textContent : 'Uncategorised';
+      }
+    });
+  }
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
   renderTagList();
   renderRatingStars(0);
+  renderPromptMeta(null);
   syncFilterControls();
   bindEvents();
 
