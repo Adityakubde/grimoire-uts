@@ -143,7 +143,7 @@ function showGridMessage(title, message) {
   grid.innerHTML = `
     <div class="col-span-full py-24 text-center">
       <p class="font-serif text-3xl text-on-surface mb-3">${escHtml(title)}</p>
-      <p class="font-sans text-xs text-outline-variant uppercase tracking-widest max-w-xl mx-auto">
+      <p class="font-sans text-sm text-[#b8b0c4] uppercase tracking-widest max-w-xl mx-auto">
         ${escHtml(message)}
       </p>
     </div>
@@ -194,13 +194,13 @@ function cardHTML(prompt) {
       </div>
       <div class="bg-surface-container-lowest p-3 lg:p-4 mb-4 font-mono text-[10px] lg:text-xs
                   text-primary leading-relaxed line-clamp-2 lg:line-clamp-none border border-outline-variant/5">
-        <span class="text-outline-variant"># ${(prompt.tags && prompt.tags[0]) ? escHtml(prompt.tags[0]) : escHtml(promptModel.toLowerCase())}</span><br />
+        <span class="text-[#b8b0c4]"># ${(prompt.tags && prompt.tags[0]) ? escHtml(prompt.tags[0]) : escHtml(promptModel.toLowerCase())}</span><br />
         "${bodyPreview}${prompt.body && prompt.body.length > 130 ? '...' : ''}"
       </div>
       <div class="flex items-center justify-between gap-4">
         <span class="${modelClass} px-2 py-0.5 lg:py-1 text-[9px] lg:text-[10px]
                       font-bold font-sans tracking-widest uppercase">${escHtml(promptModel)}</span>
-        <span class="text-[9px] lg:text-[10px] text-outline-variant font-sans">
+        <span class="text-[10px] lg:text-[11px] text-[#b8b0c4] font-sans">
           ${timeAgo(prompt.updatedAt)}${categoryName}
         </span>
       </div>
@@ -300,7 +300,7 @@ function renderTagList() {
 
   if (!activePromptTags.length) {
     tagList.innerHTML = `
-      <span class="text-[10px] font-sans uppercase tracking-widest text-outline-variant">
+      <span class="text-[11px] font-sans uppercase tracking-widest text-[#b8b0c4]">
         No tags yet
       </span>
     `;
@@ -367,7 +367,7 @@ function renderRatingStars(rating) {
       `
     )
     .join('') + `
-      <button class="ml-2 text-[10px] font-sans uppercase tracking-widest text-outline-variant hover:text-on-surface"
+      <button class="ml-2 text-[11px] font-sans uppercase tracking-widest text-[#b8b0c4] hover:text-on-surface"
         onclick="setRating(0)"
         type="button">
         Clear
