@@ -262,9 +262,10 @@ function renderCategoryList(errorMessage = '') {
             </span>
             <span class="text-[10px] text-outline-variant">${promptCount}</span>
           </button>
-          <button class="opacity-0 group-hover:opacity-100 text-outline-variant hover:text-error transition-all"
+          <button class="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-outline-variant hover:text-error transition-all p-1"
             onclick="event.stopPropagation(); deleteCategory('${category._id}')"
             title="Delete category"
+            aria-label="Delete ${escHtml(category.name)} category"
             type="button">
             <span class="material-symbols-outlined text-sm">delete</span>
           </button>
