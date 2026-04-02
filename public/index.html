@@ -1,50 +1,142 @@
 <!DOCTYPE html>
 
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Grimoire AI Prompt Vault</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@200..800&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<style>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Grimoire AI Prompt Vault</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@200..800&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
-        
+
         body {
             font-family: 'Newsreader', serif;
             background-color: #0a0a0f;
             color: #e4e1e9;
         }
-        .font-serif { font-family: 'Newsreader', serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-sans { font-family: 'Manrope', sans-serif; }
-        
+
+        .font-serif {
+            font-family: 'Newsreader', serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .font-sans {
+            font-family: 'Manrope', sans-serif;
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
         }
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #35343a; }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #35343a;
+        }
+
+        .vault-filter-select {
+            width: 100%;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            border: 1px solid rgba(74, 68, 85, 0.75);
+            background-color: #0e0e13;
+            color: #d2bbff;
+            padding: 0.9rem 3rem 0.9rem 1rem;
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.2;
+            transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+            color-scheme: dark;
+        }
+
+        .vault-filter-select:hover {
+            background-color: #131318;
+            border-color: rgba(149, 141, 161, 0.55);
+        }
+
+        .vault-filter-select:focus {
+            outline: none;
+            border-color: #d2bbff;
+            box-shadow: 0 0 0 1px rgba(210, 187, 255, 0.25);
+        }
+
+        .vault-filter-select option {
+            background-color: #0e0e13;
+            color: #d2bbff;
+        }
+
+        .vault-filter-select option:checked {
+            background-color: #8b8790;
+            color: #ffffff;
+        }
+
+        .vault-filter-chevron {
+            transition: color 0.2s ease;
+        }
+
+        .vault-filter-field:focus-within .vault-filter-chevron {
+            color: #d2bbff;
+        }
 
         @keyframes breathe {
-            0%, 100% { transform: translateY(0) scaleY(1); }
-            50% { transform: translateY(-3px) scaleY(1.05); }
+
+            0%,
+            100% {
+                transform: translateY(0) scaleY(1);
+            }
+
+            50% {
+                transform: translateY(-3px) scaleY(1.05);
+            }
         }
+
         @keyframes pulse-glow {
-            0%, 100% { opacity: 0.4; filter: blur(4px); }
-            50% { opacity: 0.8; filter: blur(6px); }
+
+            0%,
+            100% {
+                opacity: 0.4;
+                filter: blur(4px);
+            }
+
+            50% {
+                opacity: 0.8;
+                filter: blur(6px);
+            }
         }
+
         .book-icon-animate {
             animation: breathe 4s ease-in-out infinite;
         }
+
         .glow-animate {
             animation: pulse-glow 4s ease-in-out infinite;
         }
 
         @keyframes skeleton-shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         .skeleton-block {
@@ -57,9 +149,11 @@
         .drawer-content {
             transition: transform 0.3s ease-in-out;
         }
+
         .drawer-hidden {
             transform: translateX(-100%);
         }
+
         .drawer-visible {
             transform: translateX(0);
         }
@@ -68,15 +162,19 @@
         .main-wrapper {
             transition: padding-right 0.3s ease-in-out;
         }
+
         .sidebar-expanded .main-wrapper {
             padding-right: 400px;
         }
+
         .sidebar-collapsed .main-wrapper {
             padding-right: 0px;
         }
 
         @media (max-width: 1023px) {
-            .sidebar-expanded .main-wrapper, .sidebar-collapsed .main-wrapper {
+
+            .sidebar-expanded .main-wrapper,
+            .sidebar-collapsed .main-wrapper {
                 padding-right: 0px;
             }
         }
@@ -85,12 +183,15 @@
             .drawer-hidden {
                 transform: translateX(0);
             }
+
             #detailsSheet {
                 transition: transform 0.3s ease-in-out;
             }
+
             .sidebar-collapsed #detailsSheet {
                 transform: translateX(100%);
             }
+
             .sidebar-expanded #detailsSheet {
                 transform: translateX(0);
             }
@@ -100,19 +201,22 @@
         #fabToggle {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         #fabIcon {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .sidebar-expanded #fabToggle {
             transform: translateX(calc(-400px + 32px)) translateY(calc(-100vh + 104px));
         }
+
         @media (max-width: 1023px) {
             .sidebar-expanded #fabToggle {
                 transform: translateY(calc(-90vh + 104px));
             }
         }
     </style>
-<script id="tailwind-config">
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -145,307 +249,383 @@
                         "body": ["Newsreader", "serif"],
                         "label": ["Manrope", "sans-serif"]
                     },
-                    borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+                    borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
                 },
             },
         }
     </script>
 </head>
+
 <body class="bg-background text-on-surface overflow-x-hidden font-body lg:overflow-hidden sidebar-collapsed">
-<!-- Mobile Navigation Drawer (Left) & Desktop Sidebar -->
-<div class="fixed inset-0 z-[60] bg-black/60 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden" id="navDrawerOverlay" onclick="toggleDrawer()"></div>
-<aside class="h-screen w-[280px] fixed left-0 top-0 bg-[#111118] flex flex-col py-8 px-6 z-[70] drawer-content drawer-hidden lg:z-50 border-r border-outline-variant/10" id="navDrawer">
-<div class="mb-12 flex items-center justify-between">
-<div class="flex items-center gap-3">
-<svg class="book-icon-animate" fill="none" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-<ellipse class="glow-animate" cx="12" cy="12" fill="#7c3aed" rx="6" ry="8" style="mix-blend-mode: screen;"></ellipse>
-<g stroke="#e4e1e9" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-<path d="M12 19V5C12 5 10 4 6 4C2 4 2 7 2 7V18C2 18 2 15 6 15C10 15 12 16 12 16"></path>
-<path d="M12 19V5C12 5 14 4 18 4C22 4 22 7 22 7V18C22 18 22 15 18 15C14 15 12 16 12 16"></path>
-<line stroke-opacity="0.3" x1="12" x2="12" y1="5" y2="19"></line>
-</g>
-<g stroke="#e4e1e9" stroke-opacity="0.4" stroke-width="0.5">
-<line x1="4" x2="9" y1="7" y2="7"></line>
-<line x1="4" x2="9" y1="10" y2="10"></line>
-<line x1="4" x2="9" y1="13" y2="13"></line>
-<line x1="15" x2="20" y1="7" y2="7"></line>
-<line x1="15" x2="20" y1="10" y2="10"></line>
-<line x1="15" x2="20" y1="13" y2="13"></line>
-</g>
-</svg>
-<h1 class="text-2xl font-serif text-[#e4e1e9] tracking-tight">Grimoire</h1>
-</div>
-<button class="text-[#ccc3d8] lg:hidden" onclick="toggleDrawer()">
-<span class="material-symbols-outlined">close</span>
-</button>
-</div>
-<nav class="flex-1 space-y-2">
-<a class="flex items-center gap-3 py-3 px-4 text-[#f5be52] font-semibold bg-[#1f1f25] transition-colors" href="#">
-<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
-<span class="text-sm tracking-wide">All Spells</span>
-</a>
-<a class="flex items-center gap-3 py-3 px-4 text-[#ccc3d8] hover:bg-[#1f1f25] transition-colors" href="#">
-<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
-<span class="text-sm tracking-wide">Ancient Scripts</span>
-</a>
-<a class="flex items-center gap-3 py-3 px-4 text-[#ccc3d8] hover:bg-[#1f1f25] transition-colors" href="#">
-<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
-<span class="text-sm tracking-wide">Modern Logic</span>
-</a>
-<div class="mt-4 space-y-1" id="categoryList"></div>
-</nav>
-<div class="mt-auto border-t border-outline-variant/10 pt-6">
-<button class="flex items-center gap-3 w-full py-3 px-4 text-[#ccc3d8]">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-<span class="text-sm font-medium">Settings</span>
-</button>
-</div>
-</aside>
-<!-- Main App Wrapper -->
-<div class="min-h-screen flex flex-col lg:pl-[280px] main-wrapper">
-<!-- Top Bar -->
-<header class="sticky top-0 h-16 lg:h-20 bg-[#0a0a0f] flex items-center justify-between px-4 lg:px-10 z-40 border-b border-outline-variant/10">
-<div class="flex items-center gap-3">
-<button class="p-2 -ml-2 text-on-surface lg:hidden" onclick="toggleDrawer()">
-<span class="material-symbols-outlined">menu</span>
-</button>
-<div class="flex items-center gap-2 lg:hidden">
-<svg class="book-icon-animate h-5 w-5" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<ellipse class="glow-animate" cx="12" cy="12" fill="#7c3aed" rx="6" ry="8" style="mix-blend-mode: screen;"></ellipse>
-<g stroke="#e4e1e9" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-<path d="M12 19V5C12 5 10 4 6 4C2 4 2 7 2 7V18C2 18 2 15 6 15C10 15 12 16 12 16"></path>
-<path d="M12 19V5C12 5 14 4 18 4C22 4 22 7 22 7V18C22 18 22 15 18 15C14 15 12 16 12 16"></path>
-</g>
-</svg>
-<h1 class="text-xl font-serif">Grimoire</h1>
-</div>
-<!-- Desktop Search -->
-<div class="hidden lg:block w-96 ml-0">
-<div class="relative">
-<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#b8b0c4] text-lg">search</span>
-<input class="w-full bg-transparent border border-outline-variant/20 py-2 pl-12 pr-4 focus:ring-0 focus:border-primary transition-all text-sm font-sans placeholder:text-[#8f889b]" id="searchInput" placeholder="Search prompts..." type="text"/>
-</div>
-</div>
-</div>
-<div class="flex items-center gap-2 lg:gap-6">
-<button class="p-2 text-[#ccc3d8] lg:hidden" onclick="focusMobileSearch()" type="button"><span class="material-symbols-outlined text-xl">search</span></button>
-<button class="hidden lg:block text-[#ccc3d8] hover:text-[#f5be52] transition-all"><span class="material-symbols-outlined">filter_list</span></button>
-<button class="hidden lg:block text-[#ccc3d8] hover:text-[#f5be52] transition-all"><span class="material-symbols-outlined">sort</span></button>
-<div class="h-7 w-7 lg:h-8 lg:w-8 bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center">
-<span class="text-[9px] lg:text-[10px] font-bold font-sans">AZ</span>
-</div>
-</div>
-</header>
-<div class="lg:hidden px-4 pb-4 border-b border-outline-variant/10 bg-[#0a0a0f]">
-<div class="relative">
-<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#b8b0c4] text-lg">search</span>
-<input class="w-full bg-transparent border border-outline-variant/20 py-2 pl-12 pr-4 focus:ring-0 focus:border-primary transition-all text-sm font-sans placeholder:text-[#8f889b]" id="mobileSearchInput" placeholder="Search prompts..." type="text"/>
-</div>
-</div>
-<!-- Main Content -->
-<main class="flex-1 px-4 py-6 pb-24 lg:px-10 lg:py-8 lg:overflow-y-auto custom-scrollbar">
-<div class="mb-8 lg:mb-12">
-<h2 class="text-4xl lg:text-5xl font-serif text-on-surface mb-1 lg:mb-2">Vault</h2>
-<p class="text-[#b8b0c4] font-body text-sm italic opacity-90" id="vaultSubtitle">Curated logic for the modern alchemist.</p>
-</div>
-<!-- Filters -->
-<div class="flex gap-2 lg:gap-4 mb-8 lg:mb-10 overflow-x-auto pb-4 -mx-4 px-4 lg:mx-0 lg:px-0">
-<label class="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-outline-variant/20 text-[10px] lg:text-xs font-bold font-sans uppercase lg:normal-case lg:font-medium tracking-wider lg:tracking-normal">
-<span class="text-outline-variant">Model</span>
-<select class="bg-transparent border-0 py-0 pl-0 pr-6 text-on-surface focus:ring-0 text-[10px] lg:text-xs font-bold font-sans uppercase lg:normal-case" id="modelFilter">
-<option value="">All</option>
-<option value="GPT-4o">GPT-4o</option>
-<option value="Gemini Pro">Gemini Pro</option>
-<option value="Claude 3.5">Claude 3.5</option>
-<option value="DALL-E 3">DALL-E 3</option>
-<option value="LLaMA 3">LLaMA 3</option>
-<option value="Groq">Groq</option>
-<option value="Other">Other</option>
-</select>
-</label>
-<button class="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-outline-variant/20 text-[10px] lg:text-xs font-bold font-sans uppercase lg:normal-case lg:font-medium tracking-wider lg:tracking-normal cursor-pointer hover:bg-surface-container" id="clearFiltersBtn" type="button">
-<span>Clear Filters</span>
-<span class="material-symbols-outlined text-xs">restart_alt</span>
-</button>
-<label class="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-outline-variant/20 text-[10px] lg:text-xs font-bold font-sans uppercase lg:normal-case lg:font-medium tracking-wider lg:tracking-normal">
-<span class="text-outline-variant">Sort</span>
-<select class="bg-transparent border-0 py-0 pl-0 pr-6 text-on-surface focus:ring-0 text-[10px] lg:text-xs font-bold font-sans uppercase lg:normal-case" id="sortFilter">
-<option value="newest">Recent</option>
-<option value="rating">Rating</option>
-<option value="usage">Most Used</option>
-<option value="oldest">Oldest</option>
-</select>
-</label>
-</div>
-<!-- Spell Cards Grid -->
-<div class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-1 xl:grid-cols-2 lg:gap-8" id="promptGrid"></div>
-</main>
-</div>
-<!-- Universal Floating Action Button -->
-<div class="fixed bottom-8 right-8 z-[100]">
-<button class="h-14 w-14 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center shadow-[0_8px_24px_rgba(124,58,237,0.4)] active:scale-95 group" id="fabToggle" onclick="openNewPrompt()" type="button">
-<span class="material-symbols-outlined text-3xl" id="fabIcon">add</span>
-</button>
-</div>
-<!-- Spell Details Overlay (Mobile) & Side Panel (Desktop) -->
-<div class="fixed inset-0 z-[80] bg-black/70 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden" id="detailsOverlay" onclick="hideDetails()"></div>
-<aside class="fixed inset-x-0 bottom-0 z-[90] h-[90vh] bg-[#18181f] flex flex-col transition-transform duration-300 transform translate-y-full border-t border-[#252535] lg:translate-y-0 lg:h-screen lg:w-[400px] lg:left-auto lg:right-0 lg:top-0 lg:border-t-0 lg:border-l lg:z-[90]" id="detailsSheet">
-<div class="flex-shrink-0 p-6 lg:p-8 border-b border-outline-variant/10 flex justify-between items-start">
-<div class="flex items-center justify-between w-full gap-4">
-<div>
-<input id="selectedId" type="hidden" value=""/>
-<h2 class="font-serif text-3xl text-on-surface mb-1">Craft Spell</h2>
-</div>
-<button class="flex items-center justify-center p-2 text-outline-variant hover:text-on-surface transition-colors" onclick="hideDetails()" type="button">
-<span class="material-symbols-outlined text-2xl">close</span>
-</button>
-</div>
-</div>
-<div class="flex-1 p-6 lg:p-8 overflow-y-auto custom-scrollbar pb-32 lg:pb-8">
-<div class="space-y-6 lg:space-y-8">
-<div>
-<label class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Spell Title</label>
-<input class="w-full bg-transparent border-0 focus:ring-0 text-on-surface font-serif text-2xl lg:text-xl p-0 py-2 lg:py-1 border-b border-outline-variant/20 focus:border-primary transition-all" id="sheetTitle" name="title" placeholder="Name your spell..." type="text" value=""/>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<div>
-<label class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Model</label>
-<select class="bg-surface-container-lowest border-0 text-primary font-sans text-xs p-3 w-full focus:ring-0" id="sheetModel" name="model">
-<option value="GPT-4o">GPT-4o</option>
-<option value="Gemini Pro">Gemini Pro</option>
-<option value="Claude 3.5">Claude 3.5</option>
-<option value="DALL-E 3">DALL-E 3</option>
-<option value="LLaMA 3">LLaMA 3</option>
-<option value="Groq">Groq</option>
-<option value="Other">Other</option>
-</select>
-</div>
-<div>
-<label class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Category</label>
-<select class="bg-surface-container-lowest border-0 text-primary font-sans text-xs p-3 w-full focus:ring-0" id="sheetCategory" name="category">
-<option value="">Uncategorised</option>
-</select>
-</div>
-</div>
-<div>
-<label class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-3">Rating</label>
-<input id="sheetRating" type="hidden" value="0"/>
-<div class="flex items-center gap-2 text-secondary" id="sheetStars"></div>
-</div>
-<div>
-<label class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Logic Matrix</label>
-<textarea class="w-full bg-surface-container-lowest border-0 focus:ring-0 text-primary font-mono text-xs p-4 leading-relaxed resize-none border border-outline-variant/10 focus:border-primary transition-all" id="sheetBody" name="body" placeholder="# system_prompt&#10;Describe the prompt logic you want to preserve..." rows="10"></textarea>
-</div>
-<div>
-<div class="flex items-center justify-between gap-4 mb-3">
-<label class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest">Enchantment Tags</label>
-<button class="bg-surface-container-highest px-3 py-1 text-[10px] font-mono text-outline-variant flex items-center gap-2 hover:text-on-surface transition-colors" onclick="promptForTag()" type="button">
-<span class="material-symbols-outlined text-sm">add</span>
-Add Tag
-</button>
-</div>
-<div class="flex flex-wrap gap-2" id="sheetTagList"></div>
-</div>
-<div class="grid grid-cols-2 gap-3">
-<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
-<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Last Edited</p>
-<p class="text-sm font-serif text-on-surface" id="sheetMetaUpdated">Waiting for first save</p>
-</div>
-<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
-<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Usage Count</p>
-<p class="text-sm font-serif text-on-surface" id="sheetMetaUsage">0 copies</p>
-</div>
-<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
-<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Category</p>
-<p class="text-sm font-serif text-on-surface" id="sheetMetaCategory">Uncategorised</p>
-</div>
-<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
-<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Created</p>
-<p class="text-sm font-serif text-on-surface" id="sheetMetaCreated">Draft mode</p>
-</div>
-</div>
-</div>
-</div>
-<div class="absolute bottom-0 inset-x-0 p-6 lg:p-8 bg-surface-dim border-t border-outline-variant/10 lg:static lg:mt-auto">
-<div class="space-y-3">
-<button class="w-full bg-primary-container lg:bg-gradient-to-r lg:from-primary-container lg:to-[#6a29d4] hover:brightness-110 text-on-primary-container font-bold font-sans py-4 text-xs lg:text-sm tracking-[0.2em] uppercase transition-all shadow-lg active:scale-[0.98]" onclick="savePrompt()" type="button">Execute Logic &amp; Save</button>
-<button class="w-full border border-error/30 text-error py-3 text-xs font-bold font-sans tracking-widest uppercase hover:bg-error/10 transition-all" onclick="deletePrompt()" type="button">Delete Spell</button>
-</div>
-</div>
-</aside>
-<script>
-function toggleDrawer() {
-    const drawer = document.getElementById('navDrawer');
-    const overlay = document.getElementById('navDrawerOverlay');
-    const isDesktop = window.innerWidth >= 1024;
+    <!-- Mobile Navigation Drawer (Left) & Desktop Sidebar -->
+    <div class="fixed inset-0 z-[60] bg-black/60 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"
+        id="navDrawerOverlay" onclick="toggleDrawer()"></div>
+    <aside
+        class="h-screen w-[280px] fixed left-0 top-0 bg-[#111118] flex flex-col py-8 px-6 z-[70] drawer-content drawer-hidden lg:z-50 border-r border-outline-variant/10"
+        id="navDrawer">
+        <div class="mb-12 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg class="book-icon-animate" fill="none" height="24" viewbox="0 0 24 24" width="24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <ellipse class="glow-animate" cx="12" cy="12" fill="#7c3aed" rx="6" ry="8"
+                        style="mix-blend-mode: screen;"></ellipse>
+                    <g stroke="#e4e1e9" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                        <path d="M12 19V5C12 5 10 4 6 4C2 4 2 7 2 7V18C2 18 2 15 6 15C10 15 12 16 12 16"></path>
+                        <path d="M12 19V5C12 5 14 4 18 4C22 4 22 7 22 7V18C22 18 22 15 18 15C14 15 12 16 12 16"></path>
+                        <line stroke-opacity="0.3" x1="12" x2="12" y1="5" y2="19"></line>
+                    </g>
+                    <g stroke="#e4e1e9" stroke-opacity="0.4" stroke-width="0.5">
+                        <line x1="4" x2="9" y1="7" y2="7"></line>
+                        <line x1="4" x2="9" y1="10" y2="10"></line>
+                        <line x1="4" x2="9" y1="13" y2="13"></line>
+                        <line x1="15" x2="20" y1="7" y2="7"></line>
+                        <line x1="15" x2="20" y1="10" y2="10"></line>
+                        <line x1="15" x2="20" y1="13" y2="13"></line>
+                    </g>
+                </svg>
+                <h1 class="text-2xl font-serif text-[#e4e1e9] tracking-tight">Grimoire</h1>
+            </div>
+            <button class="text-[#ccc3d8] lg:hidden" onclick="toggleDrawer()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <nav class="flex-1 space-y-2">
+            <a class="flex items-center gap-3 py-3 px-4 text-[#f5be52] font-semibold bg-[#1f1f25] transition-colors"
+                href="#">
+                <span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+                <span class="text-sm tracking-wide">All Spells</span>
+            </a>
+            <a class="flex items-center gap-3 py-3 px-4 text-[#ccc3d8] hover:bg-[#1f1f25] transition-colors" href="#">
+                <span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+                <span class="text-sm tracking-wide">Ancient Scripts</span>
+            </a>
+            <a class="flex items-center gap-3 py-3 px-4 text-[#ccc3d8] hover:bg-[#1f1f25] transition-colors" href="#">
+                <span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+                <span class="text-sm tracking-wide">Modern Logic</span>
+            </a>
+            <div class="mt-4 space-y-1" id="categoryList"></div>
+        </nav>
+        <div class="mt-auto border-t border-outline-variant/10 pt-6">
+            <button class="flex items-center gap-3 w-full py-3 px-4 text-[#ccc3d8]">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+                <span class="text-sm font-medium">Settings</span>
+            </button>
+        </div>
+    </aside>
+    <!-- Main App Wrapper -->
+    <div class="min-h-screen flex flex-col lg:pl-[280px] main-wrapper">
+        <!-- Top Bar -->
+        <header
+            class="sticky top-0 h-16 lg:h-20 bg-[#0a0a0f] flex items-center justify-between px-4 lg:px-10 z-40 border-b border-outline-variant/10">
+            <div class="flex items-center gap-3">
+                <button class="p-2 -ml-2 text-on-surface lg:hidden" onclick="toggleDrawer()">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <div class="flex items-center gap-2 lg:hidden">
+                    <svg class="book-icon-animate h-5 w-5" fill="none" viewbox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <ellipse class="glow-animate" cx="12" cy="12" fill="#7c3aed" rx="6" ry="8"
+                            style="mix-blend-mode: screen;"></ellipse>
+                        <g stroke="#e4e1e9" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                            <path d="M12 19V5C12 5 10 4 6 4C2 4 2 7 2 7V18C2 18 2 15 6 15C10 15 12 16 12 16"></path>
+                            <path d="M12 19V5C12 5 14 4 18 4C22 4 22 7 22 7V18C22 18 22 15 18 15C14 15 12 16 12 16">
+                            </path>
+                        </g>
+                    </svg>
+                    <h1 class="text-xl font-serif">Grimoire</h1>
+                </div>
+                <!-- Desktop Search -->
+                <div class="hidden lg:block w-96 ml-0">
+                    <div class="relative">
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#b8b0c4] text-lg">search</span>
+                        <input
+                            class="w-full bg-transparent border border-outline-variant/20 py-2 pl-12 pr-4 focus:ring-0 focus:border-primary transition-all text-sm font-sans placeholder:text-[#8f889b]"
+                            id="searchInput" placeholder="Search prompts..." type="text" />
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 lg:gap-6">
+                <button class="p-2 text-[#ccc3d8] lg:hidden" onclick="focusMobileSearch()" type="button"><span
+                        class="material-symbols-outlined text-xl">search</span></button>
+                <button class="hidden lg:block text-[#ccc3d8] hover:text-[#f5be52] transition-all"><span
+                        class="material-symbols-outlined">filter_list</span></button>
+                <button class="hidden lg:block text-[#ccc3d8] hover:text-[#f5be52] transition-all"><span
+                        class="material-symbols-outlined">sort</span></button>
+                <div
+                    class="h-7 w-7 lg:h-8 lg:w-8 bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center">
+                    <span class="text-[9px] lg:text-[10px] font-bold font-sans">AZ</span>
+                </div>
+            </div>
+        </header>
+        <div class="lg:hidden px-4 pb-4 border-b border-outline-variant/10 bg-[#0a0a0f]">
+            <div class="relative">
+                <span
+                    class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#b8b0c4] text-lg">search</span>
+                <input
+                    class="w-full bg-transparent border border-outline-variant/20 py-2 pl-12 pr-4 focus:ring-0 focus:border-primary transition-all text-sm font-sans placeholder:text-[#8f889b]"
+                    id="mobileSearchInput" placeholder="Search prompts..." type="text" />
+            </div>
+        </div>
+        <!-- Main Content -->
+        <main class="flex-1 px-4 py-6 pb-24 lg:px-10 lg:py-8 lg:overflow-y-auto custom-scrollbar">
+            <div class="mb-8 lg:mb-12">
+                <h2 class="text-4xl lg:text-5xl font-serif text-on-surface mb-1 lg:mb-2">Vault</h2>
+                <p class="text-[#b8b0c4] font-body text-sm italic opacity-90" id="vaultSubtitle">Curated logic for the
+                    modern alchemist.</p>
+            </div>
+            <!-- Filters -->
+            <div class="flex gap-3 lg:gap-4 mb-8 lg:mb-10 overflow-x-auto pb-4 -mx-4 px-4 lg:mx-0 lg:px-0">
+                <label
+                    class="flex-shrink-0 min-w-[180px] lg:min-w-[210px]">
+                    <span
+                        class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Model</span>
+                    <div class="vault-filter-field relative">
+                        <select class="vault-filter-select" id="modelFilter">
+                            <option value="">All</option>
+                            <option value="GPT-4o">GPT-4o</option>
+                            <option value="Gemini Pro">Gemini Pro</option>
+                            <option value="Claude 3.5">Claude 3.5</option>
+                            <option value="DALL-E 3">DALL-E 3</option>
+                            <option value="LLaMA 3">LLaMA 3</option>
+                            <option value="Groq">Groq</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span
+                            class="vault-filter-chevron pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[22px] text-outline">expand_more</span>
+                    </div>
+                </label>
+                <button
+                    class="flex-shrink-0 self-end h-[51px] flex items-center gap-2 px-4 bg-surface-container-low border border-outline-variant/20 text-[10px] lg:text-xs font-bold font-sans uppercase tracking-widest text-on-surface cursor-pointer hover:bg-surface-container transition-colors"
+                    id="clearFiltersBtn" type="button">
+                    <span>Clear Filters</span>
+                    <span class="material-symbols-outlined text-xs">restart_alt</span>
+                </button>
+                <label
+                    class="flex-shrink-0 min-w-[180px] lg:min-w-[210px]">
+                    <span
+                        class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Sort</span>
+                    <div class="vault-filter-field relative">
+                        <select class="vault-filter-select" id="sortFilter">
+                            <option value="newest">Recent</option>
+                            <option value="rating">Rating</option>
+                            <option value="usage">Most Used</option>
+                            <option value="oldest">Oldest</option>
+                        </select>
+                        <span
+                            class="vault-filter-chevron pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[22px] text-outline">expand_more</span>
+                    </div>
+                </label>
+            </div>
+            <!-- Spell Cards Grid -->
+            <div class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-1 xl:grid-cols-2 lg:gap-8" id="promptGrid"></div>
+        </main>
+    </div>
+    <!-- Universal Floating Action Button -->
+    <div class="fixed bottom-8 right-8 z-[100]">
+        <button
+            class="h-14 w-14 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center shadow-[0_8px_24px_rgba(124,58,237,0.4)] active:scale-95 group"
+            id="fabToggle" onclick="openNewPrompt()" type="button">
+            <span class="material-symbols-outlined text-3xl" id="fabIcon">add</span>
+        </button>
+    </div>
+    <!-- Spell Details Overlay (Mobile) & Side Panel (Desktop) -->
+    <div class="fixed inset-0 z-[80] bg-black/70 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"
+        id="detailsOverlay" onclick="hideDetails()"></div>
+    <aside
+        class="fixed inset-x-0 bottom-0 z-[90] h-[90vh] bg-[#18181f] flex flex-col transition-transform duration-300 transform translate-y-full border-t border-[#252535] lg:translate-y-0 lg:h-screen lg:w-[400px] lg:left-auto lg:right-0 lg:top-0 lg:border-t-0 lg:border-l lg:z-[90]"
+        id="detailsSheet">
+        <div class="flex-shrink-0 p-6 lg:p-8 border-b border-outline-variant/10 flex justify-between items-start">
+            <div class="flex items-center justify-between w-full gap-4">
+                <div>
+                    <input id="selectedId" type="hidden" value="" />
+                    <h2 class="font-serif text-3xl text-on-surface mb-1">Craft Spell</h2>
+                </div>
+                <button
+                    class="flex items-center justify-center p-2 text-outline-variant hover:text-on-surface transition-colors"
+                    onclick="hideDetails()" type="button">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 p-6 lg:p-8 overflow-y-auto custom-scrollbar pb-32 lg:pb-8">
+            <div class="space-y-6 lg:space-y-8">
+                <div>
+                    <label
+                        class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Spell
+                        Title</label>
+                    <input
+                        class="w-full bg-transparent border-0 focus:ring-0 text-on-surface font-serif text-2xl lg:text-xl p-0 py-2 lg:py-1 border-b border-outline-variant/20 focus:border-primary transition-all"
+                        id="sheetTitle" name="title" placeholder="Name your spell..." type="text" value="" />
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Model</label>
+                        <select
+                            class="bg-surface-container-lowest border-0 text-primary font-sans text-xs p-3 w-full focus:ring-0"
+                            id="sheetModel" name="model">
+                            <option value="GPT-4o">GPT-4o</option>
+                            <option value="Gemini Pro">Gemini Pro</option>
+                            <option value="Claude 3.5">Claude 3.5</option>
+                            <option value="DALL-E 3">DALL-E 3</option>
+                            <option value="LLaMA 3">LLaMA 3</option>
+                            <option value="Groq">Groq</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label
+                            class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Category</label>
+                        <select
+                            class="bg-surface-container-lowest border-0 text-primary font-sans text-xs p-3 w-full focus:ring-0"
+                            id="sheetCategory" name="category">
+                            <option value="">Uncategorised</option>
+                        </select>
+                    </div>
+                </div>
 
-    if (isDesktop) return;
+                <div>
+                    <label
+                        class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Logic
+                        Matrix</label>
+                    <textarea
+                        class="w-full bg-surface-container-lowest border-0 focus:ring-0 text-primary font-mono text-xs p-4 leading-relaxed resize-none border border-outline-variant/10 focus:border-primary transition-all"
+                        id="sheetBody" name="body"
+                        placeholder="# system_prompt&#10;Describe the prompt logic you want to preserve..."
+                        rows="10"></textarea>
+                </div>
+                <div>
+                    <label
+                        class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-3">Rating</label>
+                    <input id="sheetRating" type="hidden" value="0" />
+                    <div class="flex items-center gap-2 text-secondary" id="sheetStars"></div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between gap-4 mb-3">
+                        <label
+                            class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest">Enchantment
+                            Tags</label>
+                        <button
+                            class="bg-surface-container-highest px-3 py-1 text-[10px] font-mono text-outline-variant flex items-center gap-2 hover:text-on-surface transition-colors"
+                            onclick="promptForTag()" type="button">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                            Add Tag
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-2" id="sheetTagList"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+                        <p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Last
+                            Edited</p>
+                        <p class="text-sm font-serif text-on-surface" id="sheetMetaUpdated">Waiting for first save</p>
+                    </div>
+                    <div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+                        <p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Usage
+                            Count</p>
+                        <p class="text-sm font-serif text-on-surface" id="sheetMetaUsage">0 copies</p>
+                    </div>
+                    <div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+                        <p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">
+                            Category</p>
+                        <p class="text-sm font-serif text-on-surface" id="sheetMetaCategory">Uncategorised</p>
+                    </div>
+                    <div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+                        <p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Created
+                        </p>
+                        <p class="text-sm font-serif text-on-surface" id="sheetMetaCreated">Draft mode</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div
+            class="absolute bottom-0 inset-x-0 p-6 lg:p-8 bg-surface-dim border-t border-outline-variant/10 lg:static lg:mt-auto">
+            <div class="space-y-3">
+                <button
+                    class="w-full bg-primary-container lg:bg-gradient-to-r lg:from-primary-container lg:to-[#6a29d4] hover:brightness-110 text-on-primary-container font-bold font-sans py-4 text-xs lg:text-sm tracking-[0.2em] uppercase transition-all shadow-lg active:scale-[0.98]"
+                    onclick="savePrompt()" type="button">Execute Logic &amp; Save</button>
+                <button
+                    class="w-full border border-error/30 text-error py-3 text-xs font-bold font-sans tracking-widest uppercase hover:bg-error/10 transition-all"
+                    onclick="deletePrompt()" type="button">Delete Spell</button>
+            </div>
+        </div>
+    </aside>
+    <script>
+        function toggleDrawer() {
+            const drawer = document.getElementById('navDrawer');
+            const overlay = document.getElementById('navDrawerOverlay');
+            const isDesktop = window.innerWidth >= 1024;
 
-    drawer.classList.toggle('drawer-hidden');
-    drawer.classList.toggle('drawer-visible');
-    overlay.classList.toggle('opacity-0');
-    overlay.classList.toggle('pointer-events-none');
-    document.body.classList.toggle('overflow-hidden');
-}
+            if (isDesktop) return;
 
-function isDetailsOpen() {
-    return document.body.classList.contains('sidebar-expanded');
-}
+            drawer.classList.toggle('drawer-hidden');
+            drawer.classList.toggle('drawer-visible');
+            overlay.classList.toggle('opacity-0');
+            overlay.classList.toggle('pointer-events-none');
+            document.body.classList.toggle('overflow-hidden');
+        }
 
-function syncFabState(isOpen) {
-    const fabIcon = document.getElementById('fabIcon');
-    if (!fabIcon) return;
+        function isDetailsOpen() {
+            return document.body.classList.contains('sidebar-expanded');
+        }
 
-    fabIcon.textContent = isOpen ? 'close' : 'add';
-    fabIcon.style.transform = 'rotate(0deg)';
-}
+        function syncFabState(isOpen) {
+            const fabIcon = document.getElementById('fabIcon');
+            if (!fabIcon) return;
 
-function setDetailsOpen(isOpen) {
-    const body = document.body;
-    const sheet = document.getElementById('detailsSheet');
-    const overlay = document.getElementById('detailsOverlay');
-    const isDesktop = window.innerWidth >= 1024;
+            fabIcon.textContent = isOpen ? 'close' : 'add';
+            fabIcon.style.transform = 'rotate(0deg)';
+        }
 
-    body.classList.toggle('sidebar-expanded', isOpen);
-    body.classList.toggle('sidebar-collapsed', !isOpen);
+        function setDetailsOpen(isOpen) {
+            const body = document.body;
+            const sheet = document.getElementById('detailsSheet');
+            const overlay = document.getElementById('detailsOverlay');
+            const isDesktop = window.innerWidth >= 1024;
 
-    if (isDesktop) {
-        body.classList.remove('overflow-hidden');
-        overlay.classList.add('opacity-0', 'pointer-events-none');
-        sheet.classList.remove('translate-y-full');
-    } else {
-        sheet.classList.toggle('translate-y-full', !isOpen);
-        overlay.classList.toggle('opacity-0', !isOpen);
-        overlay.classList.toggle('pointer-events-none', !isOpen);
-        body.classList.toggle('overflow-hidden', isOpen);
-    }
+            body.classList.toggle('sidebar-expanded', isOpen);
+            body.classList.toggle('sidebar-collapsed', !isOpen);
 
-    syncFabState(isOpen);
-}
+            if (isDesktop) {
+                body.classList.remove('overflow-hidden');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                sheet.classList.remove('translate-y-full');
+            } else {
+                sheet.classList.toggle('translate-y-full', !isOpen);
+                overlay.classList.toggle('opacity-0', !isOpen);
+                overlay.classList.toggle('pointer-events-none', !isOpen);
+                body.classList.toggle('overflow-hidden', isOpen);
+            }
 
-function toggleDetails() {
-    setDetailsOpen(!isDetailsOpen());
-}
+            syncFabState(isOpen);
+        }
 
-function showDetails() {
-    setDetailsOpen(true);
-}
+        function toggleDetails() {
+            setDetailsOpen(!isDetailsOpen());
+        }
 
-function hideDetails() {
-    setDetailsOpen(false);
-}
+        function showDetails() {
+            setDetailsOpen(true);
+        }
 
-function focusMobileSearch() {
-    const mobileSearch = document.getElementById('mobileSearchInput');
-    if (!mobileSearch) return;
+        function hideDetails() {
+            setDetailsOpen(false);
+        }
 
-    mobileSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    window.setTimeout(() => mobileSearch.focus(), 150);
-}
+        function focusMobileSearch() {
+            const mobileSearch = document.getElementById('mobileSearchInput');
+            if (!mobileSearch) return;
 
-window.addEventListener('resize', () => {
-    setDetailsOpen(isDetailsOpen());
-});
-</script>
-<script src="/app.js"></script>
-</body></html>
+            mobileSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            window.setTimeout(() => mobileSearch.focus(), 150);
+        }
+
+        window.addEventListener('resize', () => {
+            setDetailsOpen(isDetailsOpen());
+        });
+    </script>
+    <script src="/app.js"></script>
+</body>
+
+</html>
