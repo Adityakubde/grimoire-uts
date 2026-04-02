@@ -447,11 +447,16 @@ async function loadStats() {
 
 function syncFilterControls() {
   const searchInput = document.getElementById('searchInput');
+  const mobileSearchInput = document.getElementById('mobileSearchInput');
   const modelFilter = document.getElementById('modelFilter');
   const sortFilter = document.getElementById('sortFilter');
 
   if (searchInput) {
     searchInput.value = filters.search;
+  }
+
+  if (mobileSearchInput) {
+    mobileSearchInput.value = filters.search;
   }
 
   if (modelFilter) {
@@ -691,6 +696,7 @@ function onSearch(event) {
 
 function bindEvents() {
   const searchInput = document.getElementById('searchInput');
+  const mobileSearchInput = document.getElementById('mobileSearchInput');
   const modelFilter = document.getElementById('modelFilter');
   const sortFilter = document.getElementById('sortFilter');
   const clearFiltersButton = document.getElementById('clearFiltersBtn');
@@ -698,6 +704,10 @@ function bindEvents() {
 
   if (searchInput) {
     searchInput.addEventListener('input', onSearch);
+  }
+
+  if (mobileSearchInput) {
+    mobileSearchInput.addEventListener('input', onSearch);
   }
 
   if (modelFilter) {

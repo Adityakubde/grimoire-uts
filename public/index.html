@@ -217,7 +217,7 @@
 </div>
 </div>
 <div class="flex items-center gap-2 lg:gap-6">
-<button class="p-2 text-[#ccc3d8] lg:hidden"><span class="material-symbols-outlined text-xl">search</span></button>
+<button class="p-2 text-[#ccc3d8] lg:hidden" onclick="focusMobileSearch()" type="button"><span class="material-symbols-outlined text-xl">search</span></button>
 <button class="hidden lg:block text-[#ccc3d8] hover:text-[#f5be52] transition-all"><span class="material-symbols-outlined">filter_list</span></button>
 <button class="hidden lg:block text-[#ccc3d8] hover:text-[#f5be52] transition-all"><span class="material-symbols-outlined">sort</span></button>
 <div class="h-7 w-7 lg:h-8 lg:w-8 bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center">
@@ -225,6 +225,12 @@
 </div>
 </div>
 </header>
+<div class="lg:hidden px-4 pb-4 border-b border-outline-variant/10 bg-[#0a0a0f]">
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#b8b0c4] text-lg">search</span>
+<input class="w-full bg-transparent border border-outline-variant/20 py-2 pl-12 pr-4 focus:ring-0 focus:border-primary transition-all text-sm font-sans placeholder:text-[#8f889b]" id="mobileSearchInput" placeholder="Search prompts..." type="text"/>
+</div>
+</div>
 <!-- Main Content -->
 <main class="flex-1 px-4 py-6 pb-24 lg:px-10 lg:py-8 lg:overflow-y-auto custom-scrollbar">
 <div class="mb-8 lg:mb-12">
@@ -423,6 +429,14 @@ function showDetails() {
 
 function hideDetails() {
     setDetailsOpen(false);
+}
+
+function focusMobileSearch() {
+    const mobileSearch = document.getElementById('mobileSearchInput');
+    if (!mobileSearch) return;
+
+    mobileSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => mobileSearch.focus(), 150);
 }
 
 window.addEventListener('resize', () => {
