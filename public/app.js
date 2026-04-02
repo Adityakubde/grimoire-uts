@@ -437,15 +437,6 @@ function buildCategoryCounts(prompts) {
   }, {});
 }
 
-function renderSubtitleSkeleton() {
-  const subtitle = document.getElementById('vaultSubtitle');
-  if (!subtitle) {
-    return;
-  }
-
-  subtitle.innerHTML = '<span class="skeleton-block block h-4 w-[24rem] max-w-full"></span>';
-}
-
 function renderRatingStars(rating) {
   const stars = document.getElementById('sheetStars');
   const ratingInput = document.getElementById('sheetRating');
@@ -584,7 +575,7 @@ async function loadStats(options = {}) {
 
   if (showLoading) {
     loadingState.stats = true;
-    renderSubtitleSkeleton();
+    subtitle.textContent = 'Curated logic for the modern alchemist.';
   }
 
   try {
