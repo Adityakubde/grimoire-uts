@@ -1,6 +1,7 @@
 let allPrompts = [];
 let allCategories = [];
 let activePromptTags = [];
+let categoryPromptCounts = {};
 let searchTimer;
 
 const filters = {
@@ -244,9 +245,7 @@ function renderCategoryList(errorMessage = '') {
   const categoryButtons = allCategories
     .map((category) => {
       const isActive = filters.category === category._id;
-      const promptCount = allPrompts.filter(
-        (prompt) => normaliseId(prompt.category) === category._id
-      ).length;
+      const promptCount = categoryPromptCounts[category._id] || 0;
 
       return `
         <div class="group flex items-center gap-2">
@@ -348,6 +347,19 @@ function renderPromptMeta(prompt) {
   createdEl.textContent = formatFullDate(prompt.createdAt);
 }
 
+function buildCategoryCounts(prompts) {
+  return prompts.reduce((counts, prompt) => {
+    const categoryId = normaliseId(prompt.category);
+
+    if (!categoryId) {
+      return counts;
+    }
+
+    counts[categoryId] = (counts[categoryId] || 0) + 1;
+    return counts;
+  }, {});
+}
+
 function renderRatingStars(rating) {
   const stars = document.getElementById('sheetStars');
   const ratingInput = document.getElementById('sheetRating');
@@ -427,6 +439,18 @@ async function loadCategories() {
     allCategories = [];
     renderCategoryList(error.message);
     renderCategorySelect();
+    console.error(error);
+  }
+}
+
+async function loadCategoryCounts() {
+  try {
+    const prompts = await apiFetch('/api/prompts');
+    categoryPromptCounts = buildCategoryCounts(prompts);
+    renderCategoryList();
+  } catch (error) {
+    categoryPromptCounts = {};
+    renderCategoryList();
     console.error(error);
   }
 }
@@ -539,6 +563,7 @@ async function openNewCategory() {
     });
 
     await loadCategories();
+    await loadCategoryCounts();
     await loadStats();
 
     const categorySelect = document.getElementById('sheetCategory');
@@ -586,7 +611,7 @@ async function deleteCategory(id) {
       categorySelect.value = '';
     }
 
-    await Promise.all([loadCategories(), loadPrompts(), loadStats()]);
+    await Promise.all([loadCategories(), loadCategoryCounts(), loadPrompts(), loadStats()]);
   } catch (error) {
     alert(error.message);
   }
@@ -620,7 +645,7 @@ async function savePrompt() {
       body: JSON.stringify(payload),
     });
 
-    await Promise.all([loadPrompts(), loadCategories(), loadStats()]);
+    await Promise.all([loadPrompts(), loadCategories(), loadCategoryCounts(), loadStats()]);
     hideDetails();
   } catch (error) {
     alert(error.message);
@@ -641,7 +666,7 @@ async function deletePrompt() {
 
   try {
     await apiFetch(`/api/prompts/${id}`, { method: 'DELETE' });
-    await Promise.all([loadPrompts(), loadStats()]);
+    await Promise.all([loadPrompts(), loadCategoryCounts(), loadStats()]);
     hideDetails();
   } catch (error) {
     alert(error.message);
@@ -749,6 +774,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   bindEvents();
 
   await loadCategories();
+  await loadCategoryCounts();
   await loadPrompts();
   await loadStats();
 });
