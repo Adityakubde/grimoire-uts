@@ -3,6 +3,13 @@ let allCategories = [];
 let activePromptTags = [];
 let categoryPromptCounts = {};
 let searchTimer;
+let categoryLoadError = '';
+const loadingState = {
+  prompts: false,
+  categories: false,
+  categoryCounts: false,
+  stats: false,
+};
 
 const filters = {
   search: '',
@@ -151,9 +158,45 @@ function showGridMessage(title, message) {
   `;
 }
 
+function renderGridSkeleton(count = 2) {
+  const grid = document.getElementById('promptGrid');
+  if (!grid) {
+    return;
+  }
+
+  grid.innerHTML = Array.from({ length: count }, () => `
+    <div class="bg-[#111118] p-5 lg:p-6 border border-outline-variant/10 space-y-4" aria-hidden="true">
+      <div class="flex justify-between items-start gap-4">
+        <div class="skeleton-block h-10 w-40 max-w-[70%]"></div>
+        <div class="flex gap-1">
+          <span class="skeleton-block h-4 w-4"></span>
+          <span class="skeleton-block h-4 w-4"></span>
+          <span class="skeleton-block h-4 w-4"></span>
+          <span class="skeleton-block h-4 w-4"></span>
+          <span class="skeleton-block h-4 w-4"></span>
+        </div>
+      </div>
+      <div class="bg-surface-container-lowest p-3 lg:p-4 border border-outline-variant/5 space-y-2">
+        <div class="skeleton-block h-3 w-24"></div>
+        <div class="skeleton-block h-3 w-full"></div>
+        <div class="skeleton-block h-3 w-4/5"></div>
+      </div>
+      <div class="flex items-center justify-between gap-4">
+        <div class="skeleton-block h-6 w-24"></div>
+        <div class="skeleton-block h-3 w-28"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
 function renderGrid(prompts) {
   const grid = document.getElementById('promptGrid');
   if (!grid) {
+    return;
+  }
+
+  if (loadingState.prompts) {
+    renderGridSkeleton();
     return;
   }
 
@@ -233,10 +276,44 @@ function renderCategoryList(errorMessage = '') {
     return;
   }
 
-  if (errorMessage) {
+  const categoryError = errorMessage || categoryLoadError;
+  if (categoryError) {
     list.innerHTML = `
       <div class="px-4 py-3 text-[10px] font-sans text-outline-variant uppercase tracking-widest">
-        ${escHtml(errorMessage)}
+        ${escHtml(categoryError)}
+      </div>
+    `;
+    return;
+  }
+
+  if (loadingState.categories || loadingState.categoryCounts) {
+    list.innerHTML = `
+      <div class="mt-4 space-y-3" aria-hidden="true">
+        <div class="flex items-center justify-between gap-3 px-4 py-2">
+          <div class="flex items-center gap-3 flex-1">
+            <span class="skeleton-block h-2 w-2 rounded-full"></span>
+            <span class="skeleton-block h-3 w-24"></span>
+          </div>
+          <span class="skeleton-block h-3 w-5"></span>
+        </div>
+        <div class="flex items-center justify-between gap-3 px-4 py-2">
+          <div class="flex items-center gap-3 flex-1">
+            <span class="skeleton-block h-2 w-2 rounded-full"></span>
+            <span class="skeleton-block h-3 w-20"></span>
+          </div>
+          <span class="skeleton-block h-3 w-5"></span>
+        </div>
+        <div class="flex items-center justify-between gap-3 px-4 py-2">
+          <div class="flex items-center gap-3 flex-1">
+            <span class="skeleton-block h-2 w-2 rounded-full"></span>
+            <span class="skeleton-block h-3 w-28"></span>
+          </div>
+          <span class="skeleton-block h-3 w-5"></span>
+        </div>
+        <div class="px-4 pt-4 space-y-3">
+          <div class="skeleton-block h-3 w-24"></div>
+          <div class="skeleton-block h-3 w-20"></div>
+        </div>
       </div>
     `;
     return;
@@ -360,6 +437,15 @@ function buildCategoryCounts(prompts) {
   }, {});
 }
 
+function renderSubtitleSkeleton() {
+  const subtitle = document.getElementById('vaultSubtitle');
+  if (!subtitle) {
+    return;
+  }
+
+  subtitle.innerHTML = '<span class="skeleton-block block h-4 w-[24rem] max-w-full"></span>';
+}
+
 function renderRatingStars(rating) {
   const stars = document.getElementById('sheetStars');
   const ratingInput = document.getElementById('sheetRating');
@@ -397,7 +483,8 @@ function resetCopyButton() {
   copyButton.textContent = 'Copy Incantation';
 }
 
-async function loadPrompts() {
+async function loadPrompts(options = {}) {
+  const { showLoading = false } = options;
   const params = new URLSearchParams();
 
   if (filters.search) {
@@ -416,55 +503,96 @@ async function loadPrompts() {
     params.set('sort', filters.sort);
   }
 
+  if (showLoading) {
+    loadingState.prompts = true;
+    renderGrid(allPrompts);
+  }
+
   try {
     const data = await apiFetch(`/api/prompts?${params.toString()}`);
     allPrompts = data;
-    renderGrid(allPrompts);
-    renderCategoryList();
   } catch (error) {
     allPrompts = [];
+    loadingState.prompts = false;
     renderCategoryList();
     showGridMessage('MongoDB connection needed.', error.message);
     console.error(error);
+    return;
   }
+
+  loadingState.prompts = false;
+  renderGrid(allPrompts);
+  renderCategoryList();
 }
 
-async function loadCategories() {
+async function loadCategories(options = {}) {
+  const { showLoading = false } = options;
+
+  if (showLoading) {
+    loadingState.categories = true;
+    renderCategoryList();
+  }
+
   try {
     const data = await apiFetch('/api/categories');
+    categoryLoadError = '';
     allCategories = data;
-    renderCategoryList();
-    renderCategorySelect();
   } catch (error) {
     allCategories = [];
-    renderCategoryList(error.message);
+    categoryLoadError = error.message;
+    loadingState.categories = false;
+    renderCategoryList();
     renderCategorySelect();
     console.error(error);
+    return;
   }
+
+  loadingState.categories = false;
+  renderCategoryList();
+  renderCategorySelect();
 }
 
-async function loadCategoryCounts() {
+async function loadCategoryCounts(options = {}) {
+  const { showLoading = false } = options;
+
+  if (showLoading) {
+    loadingState.categoryCounts = true;
+    renderCategoryList();
+  }
+
   try {
     const prompts = await apiFetch('/api/prompts');
     categoryPromptCounts = buildCategoryCounts(prompts);
-    renderCategoryList();
   } catch (error) {
     categoryPromptCounts = {};
+    loadingState.categoryCounts = false;
     renderCategoryList();
     console.error(error);
+    return;
   }
+
+  loadingState.categoryCounts = false;
+  renderCategoryList();
 }
 
-async function loadStats() {
+async function loadStats(options = {}) {
+  const { showLoading = false } = options;
   const subtitle = document.getElementById('vaultSubtitle');
   if (!subtitle) {
     return;
   }
 
+  if (showLoading) {
+    loadingState.stats = true;
+    renderSubtitleSkeleton();
+  }
+
   try {
     const stats = await apiFetch('/api/stats');
+    loadingState.stats = false;
     subtitle.textContent = `Curated logic across ${stats.total} spells, ${stats.totalCategories} circles, and ${stats.totalCopies} copies.`;
   } catch (error) {
+    loadingState.stats = false;
     subtitle.textContent = 'Curated logic for the modern alchemist.';
     console.error(error);
   }
@@ -773,10 +901,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   syncFilterControls();
   bindEvents();
 
-  await loadCategories();
-  await loadCategoryCounts();
-  await loadPrompts();
-  await loadStats();
+  await Promise.all([
+    loadCategories({ showLoading: true }),
+    loadCategoryCounts({ showLoading: true }),
+    loadPrompts({ showLoading: true }),
+    loadStats({ showLoading: true }),
+  ]);
 });
 
 window.clearCategoryFilter = clearCategoryFilter;
