@@ -296,24 +296,6 @@
 <label class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Spell Title</label>
 <input class="w-full bg-transparent border-0 focus:ring-0 text-on-surface font-serif text-2xl lg:text-xl p-0 py-2 lg:py-1 border-b border-outline-variant/20 focus:border-primary transition-all" id="sheetTitle" name="title" placeholder="Name your spell..." type="text" value=""/>
 </div>
-<div class="grid grid-cols-2 gap-3">
-<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
-<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Last Edited</p>
-<p class="text-sm font-serif text-on-surface" id="sheetMetaUpdated">Waiting for first save</p>
-</div>
-<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
-<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Usage Count</p>
-<p class="text-sm font-serif text-on-surface" id="sheetMetaUsage">0 copies</p>
-</div>
-<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
-<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Category</p>
-<p class="text-sm font-serif text-on-surface" id="sheetMetaCategory">Uncategorised</p>
-</div>
-<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
-<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Created</p>
-<p class="text-sm font-serif text-on-surface" id="sheetMetaCreated">Draft mode</p>
-</div>
-</div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 <div>
 <label class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Model</label>
@@ -353,11 +335,28 @@ Add Tag
 </div>
 <div class="flex flex-wrap gap-2" id="sheetTagList"></div>
 </div>
+<div class="space-y-3">
+<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Last Edited</p>
+<p class="text-sm font-serif text-on-surface" id="sheetMetaUpdated">Waiting for first save</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Usage Count</p>
+<p class="text-sm font-serif text-on-surface" id="sheetMetaUsage">0 copies</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Category</p>
+<p class="text-sm font-serif text-on-surface" id="sheetMetaCategory">Uncategorised</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/10 p-3">
+<p class="text-[10px] font-bold font-sans uppercase tracking-widest text-[#b8b0c4] mb-2">Created</p>
+<p class="text-sm font-serif text-on-surface" id="sheetMetaCreated">Draft mode</p>
+</div>
+</div>
 </div>
 </div>
 <div class="absolute bottom-0 inset-x-0 p-6 lg:p-8 bg-surface-dim border-t border-outline-variant/10 lg:static lg:mt-auto">
 <div class="space-y-3">
-<button class="w-full border border-outline-variant/20 text-on-surface py-3 text-xs font-bold font-sans tracking-widest uppercase hover:bg-surface-container transition-all" id="copyBtn" onclick="copyPrompt()" type="button">Copy Incantation</button>
 <button class="w-full bg-primary-container lg:bg-gradient-to-r lg:from-primary-container lg:to-[#6a29d4] hover:brightness-110 text-on-primary-container font-bold font-sans py-4 text-xs lg:text-sm tracking-[0.2em] uppercase transition-all shadow-lg active:scale-[0.98]" onclick="savePrompt()" type="button">Execute Logic &amp; Save</button>
 <button class="w-full border border-error/30 text-error py-3 text-xs font-bold font-sans tracking-widest uppercase hover:bg-error/10 transition-all" onclick="deletePrompt()" type="button">Delete Spell</button>
 </div>
