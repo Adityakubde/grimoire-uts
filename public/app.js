@@ -1,0 +1,703 @@
+let allPrompts = [];
+let allCategories = [];
+let activePromptTags = [];
+let searchTimer;
+
+const filters = {
+  search: '',
+  model: '',
+  category: '',
+  sort: 'newest',
+};
+
+const MODEL_COLOURS = {
+  'GPT-4o': 'bg-[#10a37f]/10 text-[#10a37f]',
+  'Gemini Pro': 'bg-blue-500/10 text-blue-400',
+  'Claude 3.5': 'bg-amber-500/10 text-amber-400',
+  'DALL-E 3': 'bg-[#10a37f]/10 text-[#10a37f]',
+  'LLaMA 3': 'bg-purple-500/10 text-purple-400',
+  Groq: 'bg-red-500/10 text-red-400',
+  Other: 'bg-surface-container text-outline-variant',
+};
+
+const CATEGORY_COLOURS = [
+  '#3b82f6',
+  '#10b981',
+  '#8b5cf6',
+  '#ec4899',
+  '#f59e0b',
+  '#f97316',
+  '#14b8a6',
+];
+
+function escHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function normaliseId(value) {
+  if (!value) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  return value._id || '';
+}
+
+function timeAgo(date) {
+  if (!date) {
+    return 'JUST NOW';
+  }
+
+  const diff = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diff / 60000);
+
+  if (mins < 1) {
+    return 'JUST NOW';
+  }
+
+  if (mins < 60) {
+    return `${mins}M AGO`;
+  }
+
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) {
+    return `${hours}H AGO`;
+  }
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) {
+    return `${days}D AGO`;
+  }
+
+  return new Date(date).toLocaleDateString();
+}
+
+function normaliseTags(tags) {
+  const incoming = Array.isArray(tags)
+    ? tags
+    : String(tags || '')
+        .split(',')
+        .map((tag) => tag.trim());
+
+  return [...new Set(
+    incoming
+      .map((tag) => String(tag || '').trim().replace(/^#/, ''))
+      .filter(Boolean)
+  )];
+}
+
+async function apiFetch(url, options = {}) {
+  const hasBody = Object.prototype.hasOwnProperty.call(options, 'body');
+  const config = {
+    ...options,
+    headers: {
+      ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.headers || {}),
+    },
+  };
+
+  const response = await fetch(url, config);
+  let payload = {};
+
+  try {
+    payload = await response.json();
+  } catch (error) {
+    payload = {};
+  }
+
+  if (!response.ok) {
+    throw new Error(payload.error || 'Request failed.');
+  }
+
+  return payload.data;
+}
+
+function showGridMessage(title, message) {
+  const grid = document.getElementById('promptGrid');
+  if (!grid) {
+    return;
+  }
+
+  grid.innerHTML = `
+    <div class="col-span-full py-24 text-center">
+      <p class="font-serif text-3xl text-on-surface mb-3">${escHtml(title)}</p>
+      <p class="font-sans text-xs text-outline-variant uppercase tracking-widest max-w-xl mx-auto">
+        ${escHtml(message)}
+      </p>
+    </div>
+  `;
+}
+
+function renderGrid(prompts) {
+  const grid = document.getElementById('promptGrid');
+  if (!grid) {
+    return;
+  }
+
+  if (!prompts.length) {
+    const hasActiveFilters = Boolean(filters.search || filters.model || filters.category);
+    showGridMessage(
+      hasActiveFilters ? 'No spells match these filters.' : 'Your vault is empty.',
+      hasActiveFilters ? 'Clear a filter or add a new spell.' : 'Tap + to inscribe your first spell.'
+    );
+    return;
+  }
+
+  grid.innerHTML = prompts.map(cardHTML).join('');
+}
+
+function cardHTML(prompt) {
+  const stars = [1, 2, 3, 4, 5]
+    .map((index) => `
+      <span class="material-symbols-outlined text-sm"
+        style="font-variation-settings: 'FILL' ${index <= (prompt.rating || 0) ? 1 : 0};">star</span>
+    `)
+    .join('');
+
+  const promptModel = String(prompt.model || 'Other');
+  const modelClass = MODEL_COLOURS[promptModel] || MODEL_COLOURS.Other;
+  const bodyPreview = escHtml((prompt.body || '').slice(0, 130));
+  const categoryName = prompt.category?.name ? ` | ${escHtml(prompt.category.name)}` : '';
+
+  return `
+    <div class="bg-[#111118] p-5 lg:p-6 hover:bg-surface-container-high active:scale-[0.98]
+                lg:active:scale-100 transition-all border border-outline-variant/10
+                lg:border-transparent lg:hover:border-outline-variant/20 cursor-pointer group"
+         onclick="openPrompt('${prompt._id}')">
+      <div class="flex justify-between items-start mb-4 gap-4">
+        <h3 class="font-serif text-xl lg:text-2xl group-hover:text-secondary transition-colors">
+          ${escHtml(prompt.title)}
+        </h3>
+        <div class="flex gap-1 text-secondary scale-75 origin-right lg:scale-100">${stars}</div>
+      </div>
+      <div class="bg-surface-container-lowest p-3 lg:p-4 mb-4 font-mono text-[10px] lg:text-xs
+                  text-primary leading-relaxed line-clamp-2 lg:line-clamp-none border border-outline-variant/5">
+        <span class="text-outline-variant"># ${(prompt.tags && prompt.tags[0]) ? escHtml(prompt.tags[0]) : escHtml(promptModel.toLowerCase())}</span><br />
+        "${bodyPreview}${prompt.body && prompt.body.length > 130 ? '...' : ''}"
+      </div>
+      <div class="flex items-center justify-between gap-4">
+        <span class="${modelClass} px-2 py-0.5 lg:py-1 text-[9px] lg:text-[10px]
+                      font-bold font-sans tracking-widest uppercase">${escHtml(promptModel)}</span>
+        <span class="text-[9px] lg:text-[10px] text-outline-variant font-sans">
+          ${timeAgo(prompt.updatedAt)}${categoryName}
+        </span>
+      </div>
+    </div>
+  `;
+}
+
+function renderCategorySelect() {
+  const select = document.getElementById('sheetCategory');
+  if (!select) {
+    return;
+  }
+
+  const currentValue = select.value;
+  const options = [
+    '<option value="">Uncategorised</option>',
+    ...allCategories.map((category) => `
+      <option value="${category._id}">${escHtml(category.name)}</option>
+    `),
+  ];
+
+  select.innerHTML = options.join('');
+  select.value = allCategories.some((category) => category._id === currentValue) ? currentValue : '';
+}
+
+function renderCategoryList(errorMessage = '') {
+  const list = document.getElementById('categoryList');
+  if (!list) {
+    return;
+  }
+
+  if (errorMessage) {
+    list.innerHTML = `
+      <div class="px-4 py-3 text-[10px] font-sans text-outline-variant uppercase tracking-widest">
+        ${escHtml(errorMessage)}
+      </div>
+    `;
+    return;
+  }
+
+  const categoryButtons = allCategories
+    .map((category) => {
+      const isActive = filters.category === category._id;
+      const promptCount = allPrompts.filter(
+        (prompt) => normaliseId(prompt.category) === category._id
+      ).length;
+
+      return `
+        <div class="group flex items-center gap-2">
+          <button onclick="filterByCategory('${category._id}')"
+            class="flex items-center justify-between gap-3 w-full py-2 px-4 text-xs font-sans transition-all ${
+              isActive
+                ? 'text-on-surface bg-surface-container-low'
+                : 'text-outline-variant hover:text-on-surface hover:bg-surface-container-low'
+            }">
+            <span class="flex items-center gap-3 min-w-0">
+              <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:${category.colour}"></span>
+              <span class="truncate">${escHtml(category.name)}</span>
+            </span>
+            <span class="text-[10px] text-outline-variant">${promptCount}</span>
+          </button>
+          <button class="opacity-0 group-hover:opacity-100 text-outline-variant hover:text-error transition-all"
+            onclick="event.stopPropagation(); deleteCategory('${category._id}')"
+            title="Delete category"
+            type="button">
+            <span class="material-symbols-outlined text-sm">delete</span>
+          </button>
+        </div>
+      `;
+    })
+    .join('');
+
+  list.innerHTML = `
+    ${categoryButtons}
+    <div class="pt-3 space-y-1">
+      <button onclick="openNewCategory()"
+        class="flex items-center gap-3 w-full py-2 px-4 text-outline-variant hover:text-on-surface hover:bg-surface-container-low transition-all text-xs font-sans"
+        type="button">
+        <span class="material-symbols-outlined text-sm">add_circle</span>
+        <span>New category</span>
+      </button>
+      <button onclick="clearCategoryFilter()"
+        class="flex items-center gap-3 w-full py-2 px-4 text-outline-variant/70 hover:text-outline-variant transition-all text-[10px] font-sans uppercase tracking-widest"
+        type="button">
+        <span class="material-symbols-outlined text-sm">close</span>
+        <span>Clear filter</span>
+      </button>
+    </div>
+  `;
+}
+
+function renderTagList() {
+  const tagList = document.getElementById('sheetTagList');
+  if (!tagList) {
+    return;
+  }
+
+  if (!activePromptTags.length) {
+    tagList.innerHTML = `
+      <span class="text-[10px] font-sans uppercase tracking-widest text-outline-variant">
+        No tags yet
+      </span>
+    `;
+    return;
+  }
+
+  tagList.innerHTML = activePromptTags
+    .map(
+      (tag, index) => `
+        <span class="bg-surface-container px-3 py-1 text-[10px] font-mono text-primary flex items-center gap-2">
+          #${escHtml(tag)}
+          <button class="flex items-center justify-center text-outline-variant hover:text-on-surface"
+            onclick="removeTag(${index})"
+            type="button">
+            <span class="material-symbols-outlined text-[10px]">close</span>
+          </button>
+        </span>
+      `
+    )
+    .join('');
+}
+
+function renderRatingStars(rating) {
+  const stars = document.getElementById('sheetStars');
+  const ratingInput = document.getElementById('sheetRating');
+  if (!stars || !ratingInput) {
+    return;
+  }
+
+  ratingInput.value = String(rating);
+  stars.innerHTML = [1, 2, 3, 4, 5]
+    .map(
+      (value) => `
+        <button class="transition-transform hover:scale-110"
+          onclick="setRating(${value})"
+          type="button">
+          <span class="material-symbols-outlined text-2xl"
+            style="font-variation-settings: 'FILL' ${value <= rating ? 1 : 0};">star</span>
+        </button>
+      `
+    )
+    .join('') + `
+      <button class="ml-2 text-[10px] font-sans uppercase tracking-widest text-outline-variant hover:text-on-surface"
+        onclick="setRating(0)"
+        type="button">
+        Clear
+      </button>
+    `;
+}
+
+function resetCopyButton() {
+  const copyButton = document.getElementById('copyBtn');
+  if (!copyButton) {
+    return;
+  }
+
+  copyButton.textContent = 'Copy Incantation';
+}
+
+async function loadPrompts() {
+  const params = new URLSearchParams();
+
+  if (filters.search) {
+    params.set('search', filters.search);
+  }
+
+  if (filters.model) {
+    params.set('model', filters.model);
+  }
+
+  if (filters.category) {
+    params.set('category', filters.category);
+  }
+
+  if (filters.sort) {
+    params.set('sort', filters.sort);
+  }
+
+  try {
+    const data = await apiFetch(`/api/prompts?${params.toString()}`);
+    allPrompts = data;
+    renderGrid(allPrompts);
+    renderCategoryList();
+  } catch (error) {
+    allPrompts = [];
+    renderCategoryList();
+    showGridMessage('MongoDB connection needed.', error.message);
+    console.error(error);
+  }
+}
+
+async function loadCategories() {
+  try {
+    const data = await apiFetch('/api/categories');
+    allCategories = data;
+    renderCategoryList();
+    renderCategorySelect();
+  } catch (error) {
+    allCategories = [];
+    renderCategoryList(error.message);
+    renderCategorySelect();
+    console.error(error);
+  }
+}
+
+async function loadStats() {
+  const subtitle = document.getElementById('vaultSubtitle');
+  if (!subtitle) {
+    return;
+  }
+
+  try {
+    const stats = await apiFetch('/api/stats');
+    subtitle.textContent = `Curated logic across ${stats.total} spells, ${stats.totalCategories} circles, and ${stats.totalCopies} copies.`;
+  } catch (error) {
+    subtitle.textContent = 'Curated logic for the modern alchemist.';
+    console.error(error);
+  }
+}
+
+function syncFilterControls() {
+  const searchInput = document.getElementById('searchInput');
+  const modelFilter = document.getElementById('modelFilter');
+  const sortFilter = document.getElementById('sortFilter');
+
+  if (searchInput) {
+    searchInput.value = filters.search;
+  }
+
+  if (modelFilter) {
+    modelFilter.value = filters.model;
+  }
+
+  if (sortFilter) {
+    sortFilter.value = filters.sort;
+  }
+}
+
+function openPrompt(id) {
+  const prompt = allPrompts.find((item) => item._id === id);
+  if (!prompt) {
+    return;
+  }
+
+  document.getElementById('selectedId').value = prompt._id;
+  document.getElementById('sheetTitle').value = prompt.title;
+  document.getElementById('sheetBody').value = prompt.body;
+  document.getElementById('sheetModel').value = prompt.model || 'GPT-4o';
+  document.getElementById('sheetCategory').value = normaliseId(prompt.category);
+
+  activePromptTags = [...(prompt.tags || [])];
+  renderTagList();
+  renderRatingStars(prompt.rating || 0);
+  resetCopyButton();
+  showDetails();
+}
+
+function openNewPrompt() {
+  document.getElementById('selectedId').value = '';
+  document.getElementById('sheetTitle').value = '';
+  document.getElementById('sheetBody').value = '';
+  document.getElementById('sheetModel').value = 'GPT-4o';
+  document.getElementById('sheetCategory').value = '';
+
+  activePromptTags = [];
+  renderTagList();
+  renderRatingStars(0);
+  resetCopyButton();
+  showDetails();
+}
+
+function setRating(value) {
+  renderRatingStars(value);
+}
+
+function promptForTag() {
+  const result = window.prompt('Add one or more tags (comma separated):');
+  if (!result) {
+    return;
+  }
+
+  activePromptTags = normaliseTags([...activePromptTags, ...result.split(',')]);
+  renderTagList();
+}
+
+function removeTag(index) {
+  activePromptTags = activePromptTags.filter((tag, currentIndex) => currentIndex !== index);
+  renderTagList();
+}
+
+async function openNewCategory() {
+  const name = window.prompt('Name the new category:');
+  if (!name || !name.trim()) {
+    return;
+  }
+
+  try {
+    const createdCategory = await apiFetch('/api/categories', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: name.trim(),
+        colour: CATEGORY_COLOURS[allCategories.length % CATEGORY_COLOURS.length],
+      }),
+    });
+
+    await loadCategories();
+    await loadStats();
+
+    const categorySelect = document.getElementById('sheetCategory');
+    if (categorySelect) {
+      categorySelect.value = createdCategory._id;
+    }
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+function filterByCategory(id) {
+  filters.category = id;
+  syncFilterControls();
+  loadPrompts();
+
+  if (window.innerWidth < 1024) {
+    toggleDrawer();
+  }
+}
+
+function clearCategoryFilter() {
+  filters.category = '';
+  syncFilterControls();
+  loadPrompts();
+}
+
+async function deleteCategory(id) {
+  const category = allCategories.find((item) => item._id === id);
+  const label = category ? category.name : 'this category';
+
+  if (!window.confirm(`Delete ${label}? Prompts inside it will become uncategorised.`)) {
+    return;
+  }
+
+  try {
+    await apiFetch(`/api/categories/${id}`, { method: 'DELETE' });
+
+    if (filters.category === id) {
+      filters.category = '';
+    }
+
+    const categorySelect = document.getElementById('sheetCategory');
+    if (categorySelect && categorySelect.value === id) {
+      categorySelect.value = '';
+    }
+
+    await Promise.all([loadCategories(), loadPrompts(), loadStats()]);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function savePrompt() {
+  const id = document.getElementById('selectedId').value;
+  const title = document.getElementById('sheetTitle').value.trim();
+  const body = document.getElementById('sheetBody').value.trim();
+  const model = document.getElementById('sheetModel').value;
+  const category = document.getElementById('sheetCategory').value;
+  const rating = Number(document.getElementById('sheetRating').value || 0);
+
+  if (!title || !body) {
+    alert('Title and body are required.');
+    return;
+  }
+
+  const payload = {
+    title,
+    body,
+    model,
+    category: category || null,
+    rating,
+    tags: activePromptTags,
+  };
+
+  try {
+    await apiFetch(id ? `/api/prompts/${id}` : '/api/prompts', {
+      method: id ? 'PATCH' : 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    await Promise.all([loadPrompts(), loadCategories(), loadStats()]);
+    hideDetails();
+  } catch (error) {
+    alert(error.message);
+    console.error(error);
+  }
+}
+
+async function deletePrompt() {
+  const id = document.getElementById('selectedId').value;
+  if (!id) {
+    hideDetails();
+    return;
+  }
+
+  if (!window.confirm('Delete this spell permanently?')) {
+    return;
+  }
+
+  try {
+    await apiFetch(`/api/prompts/${id}`, { method: 'DELETE' });
+    await Promise.all([loadPrompts(), loadStats()]);
+    hideDetails();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function copyPrompt() {
+  const body = document.getElementById('sheetBody').value;
+  const id = document.getElementById('selectedId').value;
+  const copyButton = document.getElementById('copyBtn');
+
+  if (!body) {
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(body);
+
+    if (copyButton) {
+      copyButton.textContent = 'Copied';
+      window.setTimeout(resetCopyButton, 1400);
+    }
+
+    if (id) {
+      apiFetch(`/api/prompts/${id}/copy`, { method: 'POST' })
+        .then(async () => {
+          await Promise.all([loadPrompts(), loadStats()]);
+        })
+        .catch((error) => console.error(error));
+    }
+  } catch (error) {
+    alert('Clipboard copy failed.');
+    console.error(error);
+  }
+}
+
+function clearFilters() {
+  filters.search = '';
+  filters.model = '';
+  filters.category = '';
+  filters.sort = 'newest';
+  syncFilterControls();
+  loadPrompts();
+}
+
+function onSearch(event) {
+  window.clearTimeout(searchTimer);
+  searchTimer = window.setTimeout(() => {
+    filters.search = event.target.value.trim();
+    loadPrompts();
+  }, 250);
+}
+
+function bindEvents() {
+  const searchInput = document.getElementById('searchInput');
+  const modelFilter = document.getElementById('modelFilter');
+  const sortFilter = document.getElementById('sortFilter');
+  const clearFiltersButton = document.getElementById('clearFiltersBtn');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', onSearch);
+  }
+
+  if (modelFilter) {
+    modelFilter.addEventListener('change', (event) => {
+      filters.model = event.target.value;
+      loadPrompts();
+    });
+  }
+
+  if (sortFilter) {
+    sortFilter.addEventListener('change', (event) => {
+      filters.sort = event.target.value;
+      loadPrompts();
+    });
+  }
+
+  if (clearFiltersButton) {
+    clearFiltersButton.addEventListener('click', clearFilters);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  renderTagList();
+  renderRatingStars(0);
+  syncFilterControls();
+  bindEvents();
+
+  await loadCategories();
+  await loadPrompts();
+  await loadStats();
+});
+
+window.clearCategoryFilter = clearCategoryFilter;
+window.copyPrompt = copyPrompt;
+window.deleteCategory = deleteCategory;
+window.deletePrompt = deletePrompt;
+window.filterByCategory = filterByCategory;
+window.openNewCategory = openNewCategory;
+window.openNewPrompt = openNewPrompt;
+window.openPrompt = openPrompt;
+window.promptForTag = promptForTag;
+window.removeTag = removeTag;
+window.savePrompt = savePrompt;
+window.setRating = setRating;
