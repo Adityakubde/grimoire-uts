@@ -4,6 +4,7 @@ let activePromptTags = [];
 let categoryPromptCounts = {};
 let searchTimer;
 let categoryLoadError = '';
+let categoryMenuTouched = false;
 const loadingState = {
   prompts: false,
   categories: false,
@@ -273,6 +274,7 @@ function renderCategorySelect() {
 function renderCategoryList(errorMessage = '') {
   const list = document.getElementById('categoryList');
   if (!list) {
+    syncSidebarNavState();
     return;
   }
 
@@ -283,39 +285,40 @@ function renderCategoryList(errorMessage = '') {
         ${escHtml(categoryError)}
       </div>
     `;
+    syncSidebarNavState();
     return;
   }
 
   if (loadingState.categories || loadingState.categoryCounts) {
     list.innerHTML = `
-      <div class="mt-4 space-y-3" aria-hidden="true">
-        <div class="flex items-center justify-between gap-3 px-4 py-2">
+      <div class="space-y-3 py-2" aria-hidden="true">
+        <div class="flex items-center justify-between gap-3 px-3 py-2">
           <div class="flex items-center gap-3 flex-1">
             <span class="skeleton-block h-2 w-2 rounded-full"></span>
             <span class="skeleton-block h-3 w-24"></span>
           </div>
           <span class="skeleton-block h-3 w-5"></span>
         </div>
-        <div class="flex items-center justify-between gap-3 px-4 py-2">
+        <div class="flex items-center justify-between gap-3 px-3 py-2">
           <div class="flex items-center gap-3 flex-1">
             <span class="skeleton-block h-2 w-2 rounded-full"></span>
             <span class="skeleton-block h-3 w-20"></span>
           </div>
           <span class="skeleton-block h-3 w-5"></span>
         </div>
-        <div class="flex items-center justify-between gap-3 px-4 py-2">
+        <div class="flex items-center justify-between gap-3 px-3 py-2">
           <div class="flex items-center gap-3 flex-1">
             <span class="skeleton-block h-2 w-2 rounded-full"></span>
             <span class="skeleton-block h-3 w-28"></span>
           </div>
           <span class="skeleton-block h-3 w-5"></span>
         </div>
-        <div class="px-4 pt-4 space-y-3">
+        <div class="px-3 pt-3">
           <div class="skeleton-block h-3 w-24"></div>
-          <div class="skeleton-block h-3 w-20"></div>
         </div>
       </div>
     `;
+    syncSidebarNavState();
     return;
   }
 
@@ -327,7 +330,7 @@ function renderCategoryList(errorMessage = '') {
       return `
         <div class="group flex items-center gap-2">
           <button onclick="filterByCategory('${category._id}')"
-            class="flex items-center justify-between gap-3 w-full py-2 px-4 text-xs font-sans transition-all ${
+            class="flex items-center justify-between gap-3 w-full py-2 px-3 text-xs font-sans transition-all ${
               isActive
                 ? 'text-on-surface bg-surface-container-low'
                 : 'text-outline-variant hover:text-on-surface hover:bg-surface-container-low'
@@ -352,21 +355,33 @@ function renderCategoryList(errorMessage = '') {
 
   list.innerHTML = `
     ${categoryButtons}
-    <div class="pt-3 space-y-1">
+    <div class="pt-3">
       <button onclick="openNewCategory()"
-        class="flex items-center gap-3 w-full py-2 px-4 text-outline-variant hover:text-on-surface hover:bg-surface-container-low transition-all text-xs font-sans"
+        class="flex items-center gap-3 w-full py-2 px-3 text-outline-variant hover:text-on-surface hover:bg-surface-container-low transition-all text-xs font-sans"
         type="button">
-        <span class="material-symbols-outlined text-sm">add_circle</span>
-        <span>New category</span>
-      </button>
-      <button onclick="clearCategoryFilter()"
-        class="flex items-center gap-3 w-full py-2 px-4 text-outline-variant/70 hover:text-outline-variant transition-all text-[10px] font-sans uppercase tracking-widest"
-        type="button">
-        <span class="material-symbols-outlined text-sm">close</span>
-        <span>Clear filter</span>
+        <span>+ Add Category</span>
       </button>
     </div>
   `;
+  syncSidebarNavState();
+}
+
+function syncSidebarNavState() {
+  const allSpellsNav = document.getElementById('allSpellsNav');
+  const categoryMenuSection = document.getElementById('categoryMenuSection');
+  const showAllSpells = !filters.category;
+
+  if (allSpellsNav) {
+    allSpellsNav.className = `flex items-center gap-3 py-3 px-4 transition-colors w-full text-left ${
+      showAllSpells
+        ? 'text-[#f5be52] font-semibold bg-[#1f1f25]'
+        : 'text-[#ccc3d8] hover:bg-[#1f1f25]'
+    }`;
+  }
+
+  if (categoryMenuSection && filters.category && !categoryMenuTouched) {
+    categoryMenuSection.open = true;
+  }
 }
 
 function renderTagList() {
@@ -610,6 +625,8 @@ function syncFilterControls() {
   if (sortFilter) {
     sortFilter.value = filters.sort;
   }
+
+  syncSidebarNavState();
 }
 
 function openPrompt(id) {
@@ -708,6 +725,10 @@ function clearCategoryFilter() {
   filters.category = '';
   syncFilterControls();
   loadPrompts();
+
+  if (window.innerWidth < 1024) {
+    toggleDrawer();
+  }
 }
 
 async function deleteCategory(id) {
@@ -845,6 +866,7 @@ function bindEvents() {
   const modelFilter = document.getElementById('modelFilter');
   const sortFilter = document.getElementById('sortFilter');
   const clearFiltersButton = document.getElementById('clearFiltersBtn');
+  const categoryMenuSection = document.getElementById('categoryMenuSection');
   const sheetCategory = document.getElementById('sheetCategory');
 
   if (searchInput) {
@@ -871,6 +893,12 @@ function bindEvents() {
 
   if (clearFiltersButton) {
     clearFiltersButton.addEventListener('click', clearFilters);
+  }
+
+  if (categoryMenuSection) {
+    categoryMenuSection.addEventListener('toggle', () => {
+      categoryMenuTouched = true;
+    });
   }
 
   if (sheetCategory) {

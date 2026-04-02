@@ -55,6 +55,7 @@
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
+            background-image: none !important;
             border: 1px solid rgba(74, 68, 85, 0.75);
             background-color: #0e0e13;
             color: #d2bbff;
@@ -87,12 +88,38 @@
             color: #ffffff;
         }
 
+        .vault-filter-select::-ms-expand {
+            display: none;
+        }
+
         .vault-filter-chevron {
             transition: color 0.2s ease;
         }
 
         .vault-filter-field:focus-within .vault-filter-chevron {
             color: #d2bbff;
+        }
+
+        .category-menu-summary {
+            list-style: none;
+        }
+
+        .category-menu-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .category-menu-chevron {
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        #categoryMenuSection[open] .category-menu-summary {
+            background-color: #1f1f25;
+            color: #e4e1e9;
+        }
+
+        #categoryMenuSection[open] .category-menu-chevron {
+            transform: rotate(180deg);
+            color: #f5be52;
         }
 
         @keyframes breathe {
@@ -290,25 +317,31 @@
             </button>
         </div>
         <nav class="flex-1 space-y-2">
-            <a class="flex items-center gap-3 py-3 px-4 text-[#f5be52] font-semibold bg-[#1f1f25] transition-colors"
-                href="#">
+            <button
+                class="flex items-center gap-3 py-3 px-4 text-[#f5be52] font-semibold bg-[#1f1f25] transition-colors w-full text-left"
+                id="allSpellsNav" onclick="clearCategoryFilter()" type="button">
                 <span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
                 <span class="text-sm tracking-wide">All Spells</span>
-            </a>
-            <a class="flex items-center gap-3 py-3 px-4 text-[#ccc3d8] hover:bg-[#1f1f25] transition-colors" href="#">
-                <span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
-                <span class="text-sm tracking-wide">Ancient Scripts</span>
-            </a>
-            <a class="flex items-center gap-3 py-3 px-4 text-[#ccc3d8] hover:bg-[#1f1f25] transition-colors" href="#">
-                <span class="material-symbols-outlined" data-icon="terminal">terminal</span>
-                <span class="text-sm tracking-wide">Modern Logic</span>
-            </a>
-            <div class="mt-4 space-y-1" id="categoryList"></div>
+            </button>
+            <details class="mt-1" id="categoryMenuSection" open>
+                <summary
+                    class="category-menu-summary flex items-center justify-between gap-3 py-3 px-4 text-[#ccc3d8] hover:bg-[#1f1f25] transition-colors cursor-pointer">
+                    <span class="flex items-center gap-3 min-w-0">
+                        <span class="material-symbols-outlined" data-icon="style">style</span>
+                        <span class="text-sm tracking-wide truncate">Spells Cabinet</span>
+                    </span>
+                    <span
+                        class="category-menu-chevron material-symbols-outlined text-lg text-outline-variant">expand_more</span>
+                </summary>
+                <div class="mt-3 ml-4 pl-4 border-l border-outline-variant/10">
+                    <div class="space-y-1" id="categoryList"></div>
+                </div>
+            </details>
         </nav>
         <div class="mt-auto border-t border-outline-variant/10 pt-6">
             <button class="flex items-center gap-3 w-full py-3 px-4 text-[#ccc3d8]">
                 <span class="material-symbols-outlined" data-icon="settings">settings</span>
-                <span class="text-sm font-medium">Settings</span>
+                <span class="text-sm font-medium">Ministry Settings</span>
             </button>
         </div>
     </aside>
@@ -345,18 +378,6 @@
                     </div>
                 </div>
             </div>
-            <div class="flex items-center gap-2 lg:gap-6">
-                <button class="p-2 text-[#ccc3d8] lg:hidden" onclick="focusMobileSearch()" type="button"><span
-                        class="material-symbols-outlined text-xl">search</span></button>
-                <button class="hidden lg:block text-[#ccc3d8] hover:text-[#f5be52] transition-all"><span
-                        class="material-symbols-outlined">filter_list</span></button>
-                <button class="hidden lg:block text-[#ccc3d8] hover:text-[#f5be52] transition-all"><span
-                        class="material-symbols-outlined">sort</span></button>
-                <div
-                    class="h-7 w-7 lg:h-8 lg:w-8 bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center">
-                    <span class="text-[9px] lg:text-[10px] font-bold font-sans">AZ</span>
-                </div>
-            </div>
         </header>
         <div class="lg:hidden px-4 pb-4 border-b border-outline-variant/10 bg-[#0a0a0f]">
             <div class="relative">
@@ -375,9 +396,9 @@
                     modern alchemist.</p>
             </div>
             <!-- Filters -->
-            <div class="flex gap-3 lg:gap-4 mb-8 lg:mb-10 overflow-x-auto pb-4 -mx-4 px-4 lg:mx-0 lg:px-0">
+            <div class="flex flex-col gap-3 mb-8 lg:mb-10 sm:flex-row sm:flex-wrap lg:gap-4">
                 <label
-                    class="flex-shrink-0 min-w-[180px] lg:min-w-[210px]">
+                    class="w-full sm:w-[210px]">
                     <span
                         class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Model</span>
                     <div class="vault-filter-field relative">
@@ -396,13 +417,13 @@
                     </div>
                 </label>
                 <button
-                    class="flex-shrink-0 self-end h-[51px] flex items-center gap-2 px-4 bg-surface-container-low border border-outline-variant/20 text-[10px] lg:text-xs font-bold font-sans uppercase tracking-widest text-on-surface cursor-pointer hover:bg-surface-container transition-colors"
+                    class="w-full sm:w-auto sm:self-end h-[51px] flex items-center justify-center gap-2 px-4 bg-surface-container-low border border-outline-variant/20 text-[10px] lg:text-xs font-bold font-sans uppercase tracking-widest text-on-surface cursor-pointer hover:bg-surface-container transition-colors"
                     id="clearFiltersBtn" type="button">
                     <span>Clear Filters</span>
                     <span class="material-symbols-outlined text-xs">restart_alt</span>
                 </button>
                 <label
-                    class="flex-shrink-0 min-w-[180px] lg:min-w-[210px]">
+                    class="w-full sm:w-[210px]">
                     <span
                         class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Sort</span>
                     <div class="vault-filter-field relative">
@@ -487,8 +508,8 @@
 
                 <div>
                     <label
-                        class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Logic
-                        Matrix</label>
+                        class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Spell
+                        Formula</label>
                     <textarea
                         class="w-full bg-surface-container-lowest border-0 focus:ring-0 text-primary font-mono text-xs p-4 leading-relaxed resize-none border border-outline-variant/10 focus:border-primary transition-all"
                         id="sheetBody" name="body"
@@ -497,7 +518,8 @@
                 </div>
                 <div>
                     <label
-                        class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-3">Rating</label>
+                        class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-3">Spell
+                        Power</label>
                     <input id="sheetRating" type="hidden" value="0" />
                     <div class="flex items-center gap-2 text-secondary" id="sheetStars"></div>
                 </div>
@@ -507,7 +529,7 @@
                             class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest">Enchantment
                             Tags</label>
                         <button
-                            class="bg-surface-container-highest px-3 py-1 text-[10px] font-mono text-outline-variant flex items-center gap-2 hover:text-on-surface transition-colors"
+                            class="bg-surface-container-highest px-3 py-1 text-[10px] font-mono text-on-surface flex items-center gap-2 hover:text-primary transition-colors border border-outline-variant/20"
                             onclick="promptForTag()" type="button">
                             <span class="material-symbols-outlined text-sm">add</span>
                             Add Tag
@@ -544,7 +566,7 @@
             <div class="space-y-3">
                 <button
                     class="w-full bg-primary-container lg:bg-gradient-to-r lg:from-primary-container lg:to-[#6a29d4] hover:brightness-110 text-on-primary-container font-bold font-sans py-4 text-xs lg:text-sm tracking-[0.2em] uppercase transition-all shadow-lg active:scale-[0.98]"
-                    onclick="savePrompt()" type="button">Execute Logic &amp; Save</button>
+                    onclick="savePrompt()" type="button">Brew Spell</button>
                 <button
                     class="w-full border border-error/30 text-error py-3 text-xs font-bold font-sans tracking-widest uppercase hover:bg-error/10 transition-all"
                     onclick="deletePrompt()" type="button">Delete Spell</button>
@@ -611,14 +633,6 @@
 
         function hideDetails() {
             setDetailsOpen(false);
-        }
-
-        function focusMobileSearch() {
-            const mobileSearch = document.getElementById('mobileSearchInput');
-            if (!mobileSearch) return;
-
-            mobileSearch.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            window.setTimeout(() => mobileSearch.focus(), 150);
         }
 
         window.addEventListener('resize', () => {
