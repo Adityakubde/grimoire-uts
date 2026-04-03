@@ -263,12 +263,12 @@
         .spell-card {
             display: flex;
             flex-direction: column;
-            min-height: 19rem;
+            min-height: 14.5rem;
             height: 100%;
         }
 
         .spell-card-header {
-            min-height: 4.5rem;
+            min-height: 2.35rem;
         }
 
         .spell-card-title {
@@ -278,16 +278,27 @@
             overflow: hidden;
         }
 
+        .spell-card-copy-icon {
+            color: #8f889b;
+            transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .spell-card-copy-icon:hover {
+            color: #d2bbff;
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
         .spell-card-preview {
             flex: 1;
-            min-height: 8.5rem;
+            min-height: 5.75rem;
             overflow: hidden;
         }
 
         .spell-card-preview-text {
             display: -webkit-box;
             -webkit-box-orient: vertical;
-            -webkit-line-clamp: 6;
+            -webkit-line-clamp: 4;
             overflow: hidden;
             white-space: normal;
         }
@@ -298,22 +309,57 @@
             transition: opacity 0.2s ease, transform 0.2s ease;
         }
 
+        #appToastPanel {
+            border: 1px solid rgba(210, 187, 255, 0.55);
+            box-shadow:
+                0 0 0 1px rgba(124, 58, 237, 0.28),
+                0 0 26px rgba(124, 58, 237, 0.26),
+                0 14px 40px rgba(0, 0, 0, 0.38);
+        }
+
         #appToast.toast-open {
             opacity: 1;
             transform: translate(-50%, 0);
         }
 
+        .sheet-field {
+            background-color: #0e0e13;
+            border: 1px solid rgba(74, 68, 85, 0.65);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            color-scheme: dark;
+        }
+
+        .sheet-field:hover {
+            border-color: rgba(149, 141, 161, 0.48);
+        }
+
+        .sheet-field:focus,
+        .sheet-field:focus-visible {
+            outline: none;
+            border-color: #d2bbff !important;
+            box-shadow: 0 0 0 1px rgba(210, 187, 255, 0.32), 0 0 0 4px rgba(124, 58, 237, 0.12);
+        }
+
+        .sheet-field::placeholder {
+            color: #8f889b;
+        }
+
+        .sheet-field option {
+            background-color: #0e0e13;
+            color: #d2bbff;
+        }
+
         @media (min-width: 1024px) {
             .spell-card {
-                min-height: 21rem;
+                min-height: 16.25rem;
             }
 
             .spell-card-preview {
-                min-height: 9.5rem;
+                min-height: 6.25rem;
             }
 
             .spell-card-preview-text {
-                -webkit-line-clamp: 7;
+                -webkit-line-clamp: 5;
             }
         }
     </style>
@@ -514,7 +560,7 @@
                 </label>
             </div>
             <!-- Spell Cards Grid -->
-            <div class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-1 xl:grid-cols-2 lg:gap-8" id="promptGrid"></div>
+            <div class="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-1 xl:grid-cols-2 lg:gap-6" id="promptGrid"></div>
         </main>
     </div>
     <!-- Universal Floating Action Button -->
@@ -526,7 +572,7 @@
         </button>
     </div>
     <div class="fixed left-1/2 bottom-6 z-[130] pointer-events-none" id="appToast">
-        <div class="bg-[#18181f] border border-outline-variant/20 px-4 py-3 shadow-[0_14px_40px_rgba(0,0,0,0.38)]">
+        <div class="bg-[#18181f] px-4 py-3" id="appToastPanel">
             <p class="text-[11px] font-bold font-sans uppercase tracking-[0.2em] text-on-surface" id="appToastMessage">
                 Spell Copied
             </p>
@@ -588,7 +634,7 @@
                         class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Spell
                         Title</label>
                     <input
-                        class="w-full bg-transparent border-0 focus:ring-0 text-on-surface font-serif text-2xl lg:text-xl p-0 py-2 lg:py-1 border-b border-outline-variant/20 focus:border-primary transition-all"
+                        class="sheet-field w-full focus:ring-0 text-on-surface font-serif text-2xl lg:text-xl px-4 py-3"
                         id="sheetTitle" name="title" placeholder="Name your spell..." type="text" value="" />
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -596,7 +642,7 @@
                         <label
                             class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Model</label>
                         <select
-                            class="bg-surface-container-lowest border-0 text-primary font-sans text-xs p-3 w-full focus:ring-0"
+                            class="sheet-field text-primary font-sans text-xs p-3 w-full focus:ring-0"
                             id="sheetModel" name="model">
                             <option value="GPT-4o">GPT-4o</option>
                             <option value="Gemini Pro">Gemini Pro</option>
@@ -611,7 +657,7 @@
                         <label
                             class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Category</label>
                         <select
-                            class="bg-surface-container-lowest border-0 text-primary font-sans text-xs p-3 w-full focus:ring-0"
+                            class="sheet-field text-primary font-sans text-xs p-3 w-full focus:ring-0"
                             id="sheetCategory" name="category">
                             <option value="">Uncategorised</option>
                         </select>
@@ -623,7 +669,7 @@
                         class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Spell
                         Formula</label>
                     <textarea
-                        class="w-full bg-surface-container-lowest border-0 focus:ring-0 text-primary font-mono text-xs p-4 leading-relaxed resize-none border border-outline-variant/10 focus:border-primary transition-all"
+                        class="sheet-field w-full focus:ring-0 text-primary font-mono text-xs p-4 leading-relaxed resize-none"
                         id="sheetBody" name="body"
                         placeholder="# system_prompt&#10;Describe the prompt logic you want to preserve..."
                         rows="10"></textarea>

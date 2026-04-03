@@ -129,7 +129,7 @@ function showToast(message) {
 
   toastTimer = window.setTimeout(() => {
     toast.classList.remove('toast-open');
-  }, 2000);
+  }, 3000);
 }
 
 async function writeTextToClipboard(text) {
@@ -235,10 +235,11 @@ function renderGridSkeleton(count = 2) {
   }
 
   grid.innerHTML = Array.from({ length: count }, () => `
-    <div class="bg-[#111118] p-5 lg:p-6 border border-outline-variant/10 space-y-4" aria-hidden="true">
-      <div class="flex justify-between items-start gap-4">
-        <div class="skeleton-block h-10 w-40 max-w-[70%]"></div>
-        <div class="flex gap-1">
+    <div class="bg-[#111118] p-4 lg:p-5 border border-outline-variant/10 space-y-3" aria-hidden="true">
+      <div class="flex justify-between items-start gap-3">
+        <div class="skeleton-block h-7 w-36 max-w-[68%]"></div>
+        <div class="flex gap-1 items-center">
+          <span class="skeleton-block h-4 w-4"></span>
           <span class="skeleton-block h-4 w-4"></span>
           <span class="skeleton-block h-4 w-4"></span>
           <span class="skeleton-block h-4 w-4"></span>
@@ -246,9 +247,9 @@ function renderGridSkeleton(count = 2) {
           <span class="skeleton-block h-4 w-4"></span>
         </div>
       </div>
-      <div class="bg-surface-container-lowest p-3 lg:p-4 border border-outline-variant/5 space-y-2">
-        <div class="skeleton-block h-3 w-24"></div>
+      <div class="bg-surface-container-lowest p-3 border border-outline-variant/5 space-y-2 min-h-[6rem]">
         <div class="skeleton-block h-3 w-full"></div>
+        <div class="skeleton-block h-3 w-[92%]"></div>
         <div class="skeleton-block h-3 w-4/5"></div>
       </div>
       <div class="flex items-center justify-between gap-4">
@@ -296,18 +297,27 @@ function cardHTML(prompt) {
   const categoryName = prompt.category?.name ? ` | ${escHtml(prompt.category.name)}` : '';
 
   return `
-    <div class="spell-card bg-[#111118] p-5 lg:p-6 hover:bg-surface-container-high active:scale-[0.98]
+    <div class="spell-card bg-[#111118] p-4 lg:p-5 hover:bg-surface-container-high active:scale-[0.98]
                 lg:active:scale-100 transition-all border border-outline-variant/10
                 lg:border-transparent lg:hover:border-outline-variant/20 cursor-pointer group"
          onclick="openPrompt('${prompt._id}')">
-      <div class="spell-card-header flex justify-between items-start mb-4 gap-4">
-        <h3 class="spell-card-title font-serif text-xl lg:text-2xl group-hover:text-secondary transition-colors">
+      <div class="spell-card-header flex justify-between items-start mb-3 gap-3">
+        <h3 class="spell-card-title font-serif text-lg lg:text-[1.75rem] group-hover:text-secondary transition-colors">
           ${escHtml(prompt.title)}
         </h3>
-        <div class="flex gap-1 text-secondary scale-75 origin-right lg:scale-100">${stars}</div>
+        <div class="flex items-center gap-2 pl-2">
+          <button class="spell-card-copy-icon flex items-center justify-center opacity-80"
+            onclick="copyPromptPreview(event, '${prompt._id}')"
+            aria-label="Copy spell"
+            title="Copy spell"
+            type="button">
+            <span class="material-symbols-outlined text-[17px]">content_copy</span>
+          </button>
+          <div class="flex gap-0.5 text-secondary scale-75 origin-right lg:scale-[0.9]">${stars}</div>
+        </div>
       </div>
-      <button class="spell-card-preview w-full appearance-none bg-surface-container-lowest p-3 lg:p-4 mb-4 font-mono text-[10px] lg:text-xs
-                  text-primary leading-relaxed border border-outline-variant/5 text-left transition-colors hover:border-primary/25"
+      <button class="spell-card-preview w-full appearance-none bg-surface-container-lowest p-3 mb-3 font-mono text-[10px] lg:text-xs
+                  text-primary leading-relaxed border border-outline-variant/5 text-left transition-colors hover:border-primary/25 cursor-copy"
         onclick="copyPromptPreview(event, '${prompt._id}')"
         title="Copy spell"
         type="button">
@@ -706,6 +716,13 @@ function openPrompt(id) {
     return;
   }
 
+  const selectedId = document.getElementById('selectedId').value;
+  const panelAlreadyOpen = typeof isDetailsOpen === 'function' && isDetailsOpen();
+  if (panelAlreadyOpen && selectedId === id) {
+    hideDetails();
+    return;
+  }
+
   document.getElementById('selectedId').value = prompt._id;
   document.getElementById('sheetTitle').value = prompt.title;
   document.getElementById('sheetBody').value = prompt.body;
@@ -857,6 +874,7 @@ async function savePrompt() {
     });
 
     await Promise.all([loadPrompts(), loadCategories(), loadCategoryCounts(), loadStats()]);
+    showToast('Spell Brewed');
     hideDetails();
   } catch (error) {
     alert(error.message);
@@ -878,6 +896,7 @@ async function deletePrompt() {
   try {
     await apiFetch(`/api/prompts/${id}`, { method: 'DELETE' });
     await Promise.all([loadPrompts(), loadCategoryCounts(), loadStats()]);
+    showToast('Spell Deleted');
     hideDetails();
   } catch (error) {
     alert(error.message);
