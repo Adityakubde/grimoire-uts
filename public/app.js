@@ -3,6 +3,7 @@ let allCategories = [];
 let activePromptTags = [];
 let categoryPromptCounts = {};
 let searchTimer;
+let toastTimer;
 let categoryLoadError = '';
 let categoryMenuTouched = false;
 const loadingState = {
@@ -101,6 +102,74 @@ function formatFullDate(date) {
     hour: 'numeric',
     minute: '2-digit',
   });
+}
+
+function buildBodyPreview(body, maxLength = 220) {
+  const normalised = String(body || '').replace(/\s+/g, ' ').trim();
+
+  if (!normalised) {
+    return '';
+  }
+
+  return normalised.length > maxLength
+    ? `${normalised.slice(0, maxLength)}...`
+    : normalised;
+}
+
+function showToast(message) {
+  const toast = document.getElementById('appToast');
+  const messageEl = document.getElementById('appToastMessage');
+  if (!toast || !messageEl) {
+    return;
+  }
+
+  window.clearTimeout(toastTimer);
+  messageEl.textContent = message;
+  toast.classList.add('toast-open');
+
+  toastTimer = window.setTimeout(() => {
+    toast.classList.remove('toast-open');
+  }, 2000);
+}
+
+async function writeTextToClipboard(text) {
+  const value = String(text || '');
+  if (!value) {
+    return false;
+  }
+
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(value);
+    return true;
+  }
+
+  const helper = document.createElement('textarea');
+  helper.value = value;
+  helper.setAttribute('readonly', '');
+  helper.style.position = 'fixed';
+  helper.style.opacity = '0';
+  helper.style.pointerEvents = 'none';
+  document.body.appendChild(helper);
+  helper.select();
+
+  try {
+    return document.execCommand('copy');
+  } finally {
+    document.body.removeChild(helper);
+  }
+}
+
+async function registerPromptCopy(id) {
+  if (!id) {
+    return;
+  }
+
+  try {
+    await apiFetch(`/api/prompts/${id}/copy`, { method: 'POST' });
+    await Promise.all([loadPrompts(), loadStats()]);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function normaliseTags(tags) {
@@ -223,26 +292,28 @@ function cardHTML(prompt) {
 
   const promptModel = String(prompt.model || 'Other');
   const modelClass = MODEL_COLOURS[promptModel] || MODEL_COLOURS.Other;
-  const bodyPreview = escHtml((prompt.body || '').slice(0, 130));
+  const bodyPreview = escHtml(buildBodyPreview(prompt.body));
   const categoryName = prompt.category?.name ? ` | ${escHtml(prompt.category.name)}` : '';
 
   return `
-    <div class="bg-[#111118] p-5 lg:p-6 hover:bg-surface-container-high active:scale-[0.98]
+    <div class="spell-card bg-[#111118] p-5 lg:p-6 hover:bg-surface-container-high active:scale-[0.98]
                 lg:active:scale-100 transition-all border border-outline-variant/10
                 lg:border-transparent lg:hover:border-outline-variant/20 cursor-pointer group"
          onclick="openPrompt('${prompt._id}')">
-      <div class="flex justify-between items-start mb-4 gap-4">
-        <h3 class="font-serif text-xl lg:text-2xl group-hover:text-secondary transition-colors">
+      <div class="spell-card-header flex justify-between items-start mb-4 gap-4">
+        <h3 class="spell-card-title font-serif text-xl lg:text-2xl group-hover:text-secondary transition-colors">
           ${escHtml(prompt.title)}
         </h3>
         <div class="flex gap-1 text-secondary scale-75 origin-right lg:scale-100">${stars}</div>
       </div>
-      <div class="bg-surface-container-lowest p-3 lg:p-4 mb-4 font-mono text-[10px] lg:text-xs
-                  text-primary leading-relaxed line-clamp-2 lg:line-clamp-none border border-outline-variant/5">
-        <span class="text-[#b8b0c4]"># ${(prompt.tags && prompt.tags[0]) ? escHtml(prompt.tags[0]) : escHtml(promptModel.toLowerCase())}</span><br />
-        "${bodyPreview}${prompt.body && prompt.body.length > 130 ? '...' : ''}"
-      </div>
-      <div class="flex items-center justify-between gap-4">
+      <button class="spell-card-preview w-full appearance-none bg-surface-container-lowest p-3 lg:p-4 mb-4 font-mono text-[10px] lg:text-xs
+                  text-primary leading-relaxed border border-outline-variant/5 text-left transition-colors hover:border-primary/25"
+        onclick="copyPromptPreview(event, '${prompt._id}')"
+        title="Copy spell"
+        type="button">
+        <span class="spell-card-preview-text">"${bodyPreview}"</span>
+      </button>
+      <div class="mt-auto flex items-center justify-between gap-4">
         <span class="${modelClass} px-2 py-0.5 lg:py-1 text-[9px] lg:text-[10px]
                       font-bold font-sans tracking-widest uppercase">${escHtml(promptModel)}</span>
         <span class="text-[10px] lg:text-[11px] text-[#b8b0c4] font-sans">
@@ -823,20 +894,43 @@ async function copyPrompt() {
   }
 
   try {
-    await navigator.clipboard.writeText(body);
+    const copied = await writeTextToClipboard(body);
+    if (!copied) {
+      throw new Error('Clipboard copy failed.');
+    }
+
+    showToast('Spell Copied');
 
     if (copyButton) {
       copyButton.textContent = 'Copied';
       window.setTimeout(resetCopyButton, 1400);
     }
 
-    if (id) {
-      apiFetch(`/api/prompts/${id}/copy`, { method: 'POST' })
-        .then(async () => {
-          await Promise.all([loadPrompts(), loadStats()]);
-        })
-        .catch((error) => console.error(error));
+    registerPromptCopy(id);
+  } catch (error) {
+    alert('Clipboard copy failed.');
+    console.error(error);
+  }
+}
+
+async function copyPromptPreview(event, id) {
+  if (event) {
+    event.stopPropagation();
+  }
+
+  const prompt = allPrompts.find((item) => item._id === id);
+  if (!prompt?.body) {
+    return;
+  }
+
+  try {
+    const copied = await writeTextToClipboard(prompt.body);
+    if (!copied) {
+      throw new Error('Clipboard copy failed.');
     }
+
+    showToast('Spell Copied');
+    registerPromptCopy(id);
   } catch (error) {
     alert('Clipboard copy failed.');
     console.error(error);
@@ -930,6 +1024,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 window.clearCategoryFilter = clearCategoryFilter;
 window.copyPrompt = copyPrompt;
+window.copyPromptPreview = copyPromptPreview;
 window.deleteCategory = deleteCategory;
 window.deletePrompt = deletePrompt;
 window.filterByCategory = filterByCategory;

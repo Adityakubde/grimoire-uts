@@ -187,23 +187,12 @@
 
         /* Sidebar Expansion Logic */
         .main-wrapper {
-            transition: padding-right 0.3s ease-in-out;
-        }
-
-        .sidebar-expanded .main-wrapper {
-            padding-right: 400px;
-        }
-
-        .sidebar-collapsed .main-wrapper {
             padding-right: 0px;
         }
 
-        @media (max-width: 1023px) {
-
-            .sidebar-expanded .main-wrapper,
-            .sidebar-collapsed .main-wrapper {
-                padding-right: 0px;
-            }
+        .sidebar-expanded .main-wrapper,
+        .sidebar-collapsed .main-wrapper {
+            padding-right: 0px;
         }
 
         @media (min-width: 1024px) {
@@ -269,6 +258,63 @@
         #easterEggOverlay.easter-egg-open #easterEggPanel {
             transform: translateY(0) scale(1);
             opacity: 1;
+        }
+
+        .spell-card {
+            display: flex;
+            flex-direction: column;
+            min-height: 19rem;
+            height: 100%;
+        }
+
+        .spell-card-header {
+            min-height: 4.5rem;
+        }
+
+        .spell-card-title {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+        }
+
+        .spell-card-preview {
+            flex: 1;
+            min-height: 8.5rem;
+            overflow: hidden;
+        }
+
+        .spell-card-preview-text {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 6;
+            overflow: hidden;
+            white-space: normal;
+        }
+
+        #appToast {
+            opacity: 0;
+            transform: translate(-50%, 14px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        #appToast.toast-open {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        @media (min-width: 1024px) {
+            .spell-card {
+                min-height: 21rem;
+            }
+
+            .spell-card-preview {
+                min-height: 9.5rem;
+            }
+
+            .spell-card-preview-text {
+                -webkit-line-clamp: 7;
+            }
         }
     </style>
     <script id="tailwind-config">
@@ -478,6 +524,13 @@
             id="fabToggle" onclick="openNewPrompt()" type="button">
             <span class="material-symbols-outlined text-3xl" id="fabIcon">add</span>
         </button>
+    </div>
+    <div class="fixed left-1/2 bottom-6 z-[130] pointer-events-none" id="appToast">
+        <div class="bg-[#18181f] border border-outline-variant/20 px-4 py-3 shadow-[0_14px_40px_rgba(0,0,0,0.38)]">
+            <p class="text-[11px] font-bold font-sans uppercase tracking-[0.2em] text-on-surface" id="appToastMessage">
+                Spell Copied
+            </p>
+        </div>
     </div>
     <div class="fixed inset-0 z-[120] bg-black/70 opacity-0 pointer-events-none p-4" id="easterEggOverlay"
         onclick="hideEasterEgg()">
