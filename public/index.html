@@ -6,6 +6,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Grimoire AI Prompt Vault</title>
+    <link href="/assets/grimoire-mark.svg" rel="icon" type="image/svg+xml" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@200..800&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap"
@@ -50,6 +51,7 @@
             background: #35343a;
         }
 
+        /* These controls intentionally override the Tailwind forms plugin so the vault filters match the drawer styling. */
         .vault-filter-select {
             width: 100%;
             appearance: none;
@@ -185,7 +187,7 @@
             transform: translateX(0);
         }
 
-        /* Sidebar Expansion Logic */
+        /* The desktop sheet slides over the page instead of pushing the vault grid around. */
         .main-wrapper {
             padding-right: 0px;
         }
@@ -213,7 +215,7 @@
             }
         }
 
-        /* FAB Position Logic */
+        /* The FAB animates toward the real close button so the motion feels tied to the sheet. */
         #fabDock {
             transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s ease;
             will-change: transform, opacity;
@@ -322,6 +324,7 @@
             transform: translate(-50%, 0);
         }
 
+        /* Form controls share one focus treatment so the side panel feels like a single surface. */
         .sheet-field {
             background-color: #0e0e13;
             border: 1px solid rgba(74, 68, 85, 0.65);
@@ -347,6 +350,39 @@
         .sheet-field option {
             background-color: #0e0e13;
             color: #d2bbff;
+        }
+
+        /* The title keeps its original underline style, but still gets a clear selected state. */
+        .sheet-title-field {
+            background: transparent !important;
+            border: 0 !important;
+            border-bottom: 1px solid rgba(74, 68, 85, 0.45) !important;
+            padding: 0.5rem 0 !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            color: #e4e1e9 !important;
+            box-shadow: none;
+        }
+
+        .sheet-title-field::placeholder {
+            color: #b8b0c4;
+            opacity: 0.7;
+        }
+
+        .sheet-title-field:hover {
+            border-bottom-color: rgba(149, 141, 161, 0.62) !important;
+        }
+
+        .sheet-title-field:focus,
+        .sheet-title-field:focus-visible {
+            outline: none;
+            background: rgba(14, 14, 19, 0.72) !important;
+            border-bottom-color: #d2bbff !important;
+            box-shadow: 0 0 0 1px rgba(210, 187, 255, 0.3), 0 0 0 4px rgba(124, 58, 237, 0.12);
+        }
+
+        /* Extra bottom space keeps mobile actions clear of gesture bars and device cutouts. */
+        .safe-bottom-inset {
+            padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
         }
 
         @media (min-width: 1024px) {
@@ -436,7 +472,8 @@
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
-        <nav class="flex-1 space-y-2">
+        <!-- The nav area scrolls on mobile so the settings button remains reachable even with many categories. -->
+        <nav class="flex-1 min-h-0 space-y-2 overflow-y-auto custom-scrollbar pr-1">
             <button
                 class="flex items-center gap-3 py-3 px-4 text-[#f5be52] font-semibold bg-[#1f1f25] transition-colors w-full text-left"
                 id="allSpellsNav" onclick="clearCategoryFilter()" type="button">
@@ -458,7 +495,7 @@
                 </div>
             </details>
         </nav>
-        <div class="mt-auto border-t border-outline-variant/10 pt-6">
+        <div class="mt-6 shrink-0 border-t border-outline-variant/10 pt-6 safe-bottom-inset">
             <button class="flex items-center gap-3 w-full py-3 px-4 text-[#ccc3d8]" id="ministrySettingsButton"
                 onclick="openEasterEgg()" type="button">
                 <span class="material-symbols-outlined" data-icon="settings">settings</span>
@@ -627,14 +664,14 @@
                 </button>
             </div>
         </div>
-        <div class="flex-1 p-6 lg:p-8 overflow-y-auto custom-scrollbar pb-32 lg:pb-8">
+        <div class="flex-1 p-6 lg:p-8 overflow-y-auto custom-scrollbar pb-8">
             <div class="space-y-6 lg:space-y-8">
                 <div>
                     <label
                         class="block text-[10px] lg:text-[11px] font-bold font-sans text-[#b8b0c4] uppercase tracking-widest mb-2">Spell
                         Title</label>
                     <input
-                        class="sheet-field w-full focus:ring-0 text-on-surface font-serif text-2xl lg:text-xl px-4 py-3"
+                        class="sheet-title-field w-full focus:ring-0 text-on-surface font-serif text-2xl lg:text-xl"
                         id="sheetTitle" name="title" placeholder="Name your spell..." type="text" value="" />
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -720,7 +757,7 @@
             </div>
         </div>
         <div
-            class="absolute bottom-0 inset-x-0 p-6 lg:p-8 bg-surface-dim border-t border-outline-variant/10 lg:static lg:mt-auto">
+            class="shrink-0 p-6 lg:p-8 bg-surface-dim border-t border-outline-variant/10 safe-bottom-inset lg:pb-8">
             <div class="space-y-3">
                 <button
                     class="w-full bg-primary-container lg:bg-gradient-to-r lg:from-primary-container lg:to-[#6a29d4] hover:brightness-110 text-on-primary-container font-bold font-sans py-4 text-xs lg:text-sm tracking-[0.2em] uppercase transition-all shadow-lg active:scale-[0.98]"
@@ -742,6 +779,7 @@
             return !!overlay && !overlay.classList.contains('pointer-events-none');
         }
 
+        // Body scrolling is locked whenever a mobile overlay is open so the background does not drift.
         function syncBodyScrollLock() {
             const shouldLock = isDrawerOpen() || (window.innerWidth < 1024 && isDetailsOpen()) || isEasterEggOpen();
             document.body.classList.toggle('overflow-hidden', shouldLock);
@@ -820,6 +858,7 @@
             window.clearTimeout(fabFadeTimeout);
             fabDock.classList.toggle('fab-immediate', immediate);
 
+            // When the sheet closes, the FAB snaps back to its home corner and becomes clickable again.
             if (!isOpen || !sheet || !closeButton) {
                 fabDock.style.transform = 'translate3d(0px, 0px, 0px) scale(1)';
                 fabDock.style.opacity = '1';
@@ -836,6 +875,7 @@
             const shiftX = closeCenter.x - fabHomeCenter.x;
             const shiftY = closeCenter.y - fabHomeCenter.y;
 
+            // During the opening motion the FAB travels to the close button, then fades once it reaches it.
             fabDock.style.opacity = '1';
             fabDock.style.transform = `translate3d(${shiftX}px, ${shiftY}px, 0px) scale(0.82)`;
             fabDock.style.pointerEvents = 'none';
@@ -889,6 +929,7 @@
             syncBodyScrollLock();
         }
 
+        // Mobile uses a bottom sheet; desktop uses the same panel as a right-side editor.
         function setDetailsOpen(isOpen, options = {}) {
             const body = document.body;
             const sheet = document.getElementById('detailsSheet');

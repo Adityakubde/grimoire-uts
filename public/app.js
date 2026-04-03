@@ -6,6 +6,7 @@ let searchTimer;
 let toastTimer;
 let categoryLoadError = '';
 let categoryMenuTouched = false;
+// Loading flags let the sidebar, stats, and vault grid update independently.
 const loadingState = {
   prompts: false,
   categories: false,
@@ -13,6 +14,7 @@ const loadingState = {
   stats: false,
 };
 
+// Frontend filter state mirrors the controls shown above the vault grid.
 const filters = {
   search: '',
   model: '',
@@ -123,6 +125,7 @@ function showToast(message) {
     return;
   }
 
+  // Reuse one toast so copy/save/delete feedback feels consistent instead of stacking notifications.
   window.clearTimeout(toastTimer);
   messageEl.textContent = message;
   toast.classList.add('toast-open');
@@ -165,6 +168,7 @@ async function registerPromptCopy(id) {
   }
 
   try {
+    // Copy count feeds the usage-based sort, so we refresh the grid after recording it.
     await apiFetch(`/api/prompts/${id}/copy`, { method: 'POST' });
     await Promise.all([loadPrompts(), loadStats()]);
   } catch (error) {
@@ -228,6 +232,7 @@ function showGridMessage(title, message) {
   `;
 }
 
+// Skeleton cards keep the layout steady while prompts are loading or resorting.
 function renderGridSkeleton(count = 2) {
   const grid = document.getElementById('promptGrid');
   if (!grid) {
@@ -260,6 +265,7 @@ function renderGridSkeleton(count = 2) {
   `).join('');
 }
 
+// The vault grid swaps between loading, empty, and real prompt cards without a page refresh.
 function renderGrid(prompts) {
   const grid = document.getElementById('promptGrid');
   if (!grid) {
@@ -283,6 +289,7 @@ function renderGrid(prompts) {
   grid.innerHTML = prompts.map(cardHTML).join('');
 }
 
+// Cards are rendered as HTML strings so the grid can be rebuilt quickly after every filter change.
 function cardHTML(prompt) {
   const stars = [1, 2, 3, 4, 5]
     .map((index) => `
@@ -352,6 +359,7 @@ function renderCategorySelect() {
   select.value = allCategories.some((category) => category._id === currentValue) ? currentValue : '';
 }
 
+// The sidebar category list needs to handle loading, errors, active state, and inline actions.
 function renderCategoryList(errorMessage = '') {
   const list = document.getElementById('categoryList');
   if (!list) {
@@ -409,7 +417,7 @@ function renderCategoryList(errorMessage = '') {
       const promptCount = categoryPromptCounts[category._id] || 0;
 
       return `
-        <div class="group flex items-center gap-2">
+        <div class="group flex items-center gap-1">
           <button onclick="filterByCategory('${category._id}')"
             class="flex items-center justify-between gap-3 w-full py-2 px-3 text-xs font-sans transition-all ${
               isActive
@@ -422,13 +430,22 @@ function renderCategoryList(errorMessage = '') {
             </span>
             <span class="text-[10px] text-outline-variant">${promptCount}</span>
           </button>
-          <button class="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-outline-variant hover:text-error transition-all p-1"
-            onclick="event.stopPropagation(); deleteCategory('${category._id}')"
-            title="Delete category"
-            aria-label="Delete ${escHtml(category.name)} category"
-            type="button">
-            <span class="material-symbols-outlined text-sm">delete</span>
-          </button>
+          <div class="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+            <button class="text-outline-variant hover:text-on-surface transition-all p-1"
+              onclick="event.stopPropagation(); renameCategory('${category._id}')"
+              title="Rename category"
+              aria-label="Rename ${escHtml(category.name)} category"
+              type="button">
+              <span class="material-symbols-outlined text-sm">edit</span>
+            </button>
+            <button class="text-outline-variant hover:text-error transition-all p-1"
+              onclick="event.stopPropagation(); deleteCategory('${category._id}')"
+              title="Delete category"
+              aria-label="Delete ${escHtml(category.name)} category"
+              type="button">
+              <span class="material-symbols-outlined text-sm">delete</span>
+            </button>
+          </div>
         </div>
       `;
     })
@@ -447,6 +464,7 @@ function renderCategoryList(errorMessage = '') {
   syncSidebarNavState();
 }
 
+// Keeping the nav highlight in one place avoids small state mismatches between filters and drawer UI.
 function syncSidebarNavState() {
   const allSpellsNav = document.getElementById('allSpellsNav');
   const categoryMenuSection = document.getElementById('categoryMenuSection');
@@ -570,6 +588,7 @@ function resetCopyButton() {
   copyButton.textContent = 'Copy Incantation';
 }
 
+// Prompt fetching is the main refresh path, so every filter and save action eventually lands here.
 async function loadPrompts(options = {}) {
   const { showLoading = false } = options;
   const params = new URLSearchParams();
@@ -612,6 +631,7 @@ async function loadPrompts(options = {}) {
   renderCategoryList();
 }
 
+// Category data and prompt counts are fetched separately so each piece can fail gracefully.
 async function loadCategories(options = {}) {
   const { showLoading = false } = options;
 
@@ -662,6 +682,7 @@ async function loadCategoryCounts(options = {}) {
   renderCategoryList();
 }
 
+// Stats power the vault subtitle, so they are refreshed after saves, deletes, and copy events.
 async function loadStats(options = {}) {
   const { showLoading = false } = options;
   const subtitle = document.getElementById('vaultSubtitle');
@@ -710,6 +731,7 @@ function syncFilterControls() {
   syncSidebarNavState();
 }
 
+// Clicking the same card twice acts like a toggle and closes the details panel.
 function openPrompt(id) {
   const prompt = allPrompts.find((item) => item._id === id);
   if (!prompt) {
@@ -737,6 +759,7 @@ function openPrompt(id) {
   showDetails();
 }
 
+// New spells reuse the same panel but start from a clean draft state.
 function openNewPrompt() {
   document.getElementById('selectedId').value = '';
   document.getElementById('sheetTitle').value = '';
@@ -799,6 +822,37 @@ async function openNewCategory() {
   }
 }
 
+async function renameCategory(id) {
+  const category = allCategories.find((item) => item._id === id);
+  if (!category) {
+    return;
+  }
+
+  const nextName = window.prompt('Rename this category:', category.name);
+  if (!nextName || !nextName.trim() || nextName.trim() === category.name) {
+    return;
+  }
+
+  try {
+    await apiFetch(`/api/categories/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ name: nextName.trim() }),
+    });
+
+    await Promise.all([loadCategories(), loadCategoryCounts(), loadPrompts(), loadStats()]);
+
+    const selectedCategory = document.getElementById('sheetCategory');
+    const metaCategory = document.getElementById('sheetMetaCategory');
+    if (selectedCategory && selectedCategory.value === id && metaCategory) {
+      metaCategory.textContent = nextName.trim();
+    }
+
+    showToast('Category Updated');
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
 function filterByCategory(id) {
   filters.category = id;
   syncFilterControls();
@@ -845,6 +899,7 @@ async function deleteCategory(id) {
   }
 }
 
+// Saves go through one payload builder path so create and edit stay consistent.
 async function savePrompt() {
   const id = document.getElementById('selectedId').value;
   const title = document.getElementById('sheetTitle').value.trim();
@@ -932,6 +987,7 @@ async function copyPrompt() {
   }
 }
 
+// Preview clicks copy the spell without stealing the main card click used to open the editor.
 async function copyPromptPreview(event, id) {
   if (event) {
     event.stopPropagation();
@@ -966,6 +1022,7 @@ function clearFilters() {
 }
 
 function onSearch(event) {
+  // A short debounce keeps typing smooth and avoids sending a request on every keypress.
   window.clearTimeout(searchTimer);
   searchTimer = window.setTimeout(() => {
     filters.search = event.target.value.trim();
@@ -973,6 +1030,7 @@ function onSearch(event) {
   }, 250);
 }
 
+// All DOM listeners are registered once here so the page stays easy to reason about.
 function bindEvents() {
   const searchInput = document.getElementById('searchInput');
   const mobileSearchInput = document.getElementById('mobileSearchInput');
@@ -1051,6 +1109,7 @@ window.openNewCategory = openNewCategory;
 window.openNewPrompt = openNewPrompt;
 window.openPrompt = openPrompt;
 window.promptForTag = promptForTag;
+window.renameCategory = renameCategory;
 window.removeTag = removeTag;
 window.savePrompt = savePrompt;
 window.setRating = setRating;

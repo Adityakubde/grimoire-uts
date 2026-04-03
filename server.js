@@ -113,6 +113,7 @@ async function connectToDatabase() {
   }
 
   if (!connectionPromise) {
+    // Keep a shared connection promise so local dev and Vercel requests do not race each other.
     connectionPromise = mongoose
       .connect(uri, { serverSelectionTimeoutMS: 5000 })
       .catch((error) => {
@@ -233,7 +234,12 @@ app.patch('/api/prompts/:id', async (req, res, next) => {
 
 app.delete('/api/prompts/:id', async (req, res, next) => {
   try {
-    await Prompt.findByIdAndDelete(req.params.id);
+    const prompt = await Prompt.findByIdAndDelete(req.params.id);
+
+    if (!prompt) {
+      return res.status(404).json({ error: 'Prompt not found.' });
+    }
+
     res.json({ data: { deleted: true } });
   } catch (error) {
     next(error);
@@ -242,10 +248,14 @@ app.delete('/api/prompts/:id', async (req, res, next) => {
 
 app.post('/api/prompts/:id/copy', async (req, res, next) => {
   try {
-    await Prompt.findByIdAndUpdate(req.params.id, {
+    const prompt = await Prompt.findByIdAndUpdate(req.params.id, {
       $inc: { usageCount: 1 },
       lastUsedAt: new Date(),
     });
+
+    if (!prompt) {
+      return res.status(404).json({ error: 'Prompt not found.' });
+    }
 
     res.json({ data: { ok: true } });
   } catch (error) {
@@ -300,7 +310,13 @@ app.patch('/api/categories/:id', async (req, res, next) => {
 
 app.delete('/api/categories/:id', async (req, res, next) => {
   try {
-    await Category.findByIdAndDelete(req.params.id);
+    const category = await Category.findByIdAndDelete(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found.' });
+    }
+
+    // Prompts keep working after a category is removed; they simply fall back to uncategorised.
     await Prompt.updateMany(
       { category: req.params.id },
       { $set: { category: null } }

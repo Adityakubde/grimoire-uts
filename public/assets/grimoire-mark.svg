@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Grimoire</title>
+  <desc id="desc">Book mark logo used as the browser tab icon.</desc>
+  <rect width="64" height="64" rx="14" fill="#0a0a0f"/>
+  <ellipse cx="32" cy="31" rx="15" ry="20" fill="#7c3aed" opacity="0.55"/>
+  <g fill="none" stroke="#ede0ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2">
+    <path d="M32 49V18c0 0-4-2-12-2s-12 5-12 5v24s2-5 12-5 12 3 12 3"/>
+    <path d="M32 49V18c0 0 4-2 12-2s12 5 12 5v24s-2-5-12-5-12 3-12 3"/>
+    <line x1="32" y1="18" x2="32" y2="49" opacity="0.35"/>
+  </g>
+  <g stroke="#ede0ff" stroke-opacity="0.4" stroke-width="1.2">
+    <line x1="14" y1="24" x2="25" y2="24"/>
+    <line x1="14" y1="30" x2="25" y2="30"/>
+    <line x1="14" y1="36" x2="25" y2="36"/>
+    <line x1="39" y1="24" x2="50" y2="24"/>
+    <line x1="39" y1="30" x2="50" y2="30"/>
+    <line x1="39" y1="36" x2="50" y2="36"/>
+  </g>
+</svg>
