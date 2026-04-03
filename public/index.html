@@ -225,22 +225,50 @@
         }
 
         /* FAB Position Logic */
+        #fabDock {
+            transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+            will-change: transform, opacity;
+        }
+
+        #fabDock.fab-immediate {
+            transition: none !important;
+        }
+
         #fabToggle {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
         }
 
         #fabIcon {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .sidebar-expanded #fabToggle {
-            transform: translateX(calc(-400px + 32px)) translateY(calc(-100vh + 104px));
+        #detailsCloseButton {
+            transition: opacity 0.2s ease, color 0.2s ease;
         }
 
-        @media (max-width: 1023px) {
-            .sidebar-expanded #fabToggle {
-                transform: translateY(calc(-90vh + 104px));
-            }
+        .sidebar-collapsed #detailsCloseButton {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-expanded #detailsCloseButton {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #easterEggOverlay {
+            transition: opacity 0.25s ease;
+        }
+
+        #easterEggPanel {
+            transform: translateY(16px) scale(0.96);
+            opacity: 0;
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+        }
+
+        #easterEggOverlay.easter-egg-open #easterEggPanel {
+            transform: translateY(0) scale(1);
+            opacity: 1;
         }
     </style>
     <script id="tailwind-config">
@@ -339,7 +367,8 @@
             </details>
         </nav>
         <div class="mt-auto border-t border-outline-variant/10 pt-6">
-            <button class="flex items-center gap-3 w-full py-3 px-4 text-[#ccc3d8]">
+            <button class="flex items-center gap-3 w-full py-3 px-4 text-[#ccc3d8]" id="ministrySettingsButton"
+                onclick="openEasterEgg()" type="button">
                 <span class="material-symbols-outlined" data-icon="settings">settings</span>
                 <span class="text-sm font-medium">Ministry Settings</span>
             </button>
@@ -443,12 +472,41 @@
         </main>
     </div>
     <!-- Universal Floating Action Button -->
-    <div class="fixed bottom-8 right-8 z-[100]">
+    <div class="fixed bottom-8 right-8 z-[100]" id="fabDock">
         <button
             class="h-14 w-14 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center shadow-[0_8px_24px_rgba(124,58,237,0.4)] active:scale-95 group"
             id="fabToggle" onclick="openNewPrompt()" type="button">
             <span class="material-symbols-outlined text-3xl" id="fabIcon">add</span>
         </button>
+    </div>
+    <div class="fixed inset-0 z-[120] bg-black/70 opacity-0 pointer-events-none p-4" id="easterEggOverlay"
+        onclick="hideEasterEgg()">
+        <div class="min-h-full flex items-center justify-center">
+            <div class="w-full max-w-sm bg-[#18181f] border border-outline-variant/20 shadow-[0_18px_50px_rgba(0,0,0,0.45)]"
+                id="easterEggPanel" onclick="event.stopPropagation()">
+                <div class="flex items-start justify-between gap-4 p-5 border-b border-outline-variant/10">
+                    <div>
+                        <p class="text-[10px] font-bold font-sans uppercase tracking-[0.28em] text-[#f5be52] mb-2">
+                            Ministry Secret</p>
+                        <h3 class="text-2xl font-serif text-on-surface">You found an Easter Egg</h3>
+                        <p class="text-sm font-body italic text-[#b8b0c4] mt-1">A hidden wizarding surprise.</p>
+                    </div>
+                    <button
+                        class="flex items-center justify-center p-2 text-outline-variant hover:text-on-surface transition-colors"
+                        onclick="hideEasterEgg()" type="button">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                </div>
+                <div class="p-5">
+                    <div class="bg-[#111118] border border-outline-variant/10">
+                        <img alt="Animated easter egg surprise"
+                            class="w-full h-auto max-h-[320px] object-contain block"
+                            onerror="this.onerror=null;this.src='/assets/easter-egg-preview.jpg?v=1';"
+                            src="/assets/easter-egg.png?v=2" />
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Spell Details Overlay (Mobile) & Side Panel (Desktop) -->
     <div class="fixed inset-0 z-[80] bg-black/70 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"
@@ -464,6 +522,7 @@
                 </div>
                 <button
                     class="flex items-center justify-center p-2 text-outline-variant hover:text-on-surface transition-colors"
+                    id="detailsCloseButton"
                     onclick="hideDetails()" type="button">
                     <span class="material-symbols-outlined text-2xl">close</span>
                 </button>
@@ -574,22 +633,114 @@
         </div>
     </aside>
     <script>
-        function toggleDrawer() {
+        function isDrawerOpen() {
+            const drawer = document.getElementById('navDrawer');
+            return !!drawer && drawer.classList.contains('drawer-visible') && !drawer.classList.contains('drawer-hidden');
+        }
+
+        function isEasterEggOpen() {
+            const overlay = document.getElementById('easterEggOverlay');
+            return !!overlay && !overlay.classList.contains('pointer-events-none');
+        }
+
+        function syncBodyScrollLock() {
+            const shouldLock = isDrawerOpen() || (window.innerWidth < 1024 && isDetailsOpen()) || isEasterEggOpen();
+            document.body.classList.toggle('overflow-hidden', shouldLock);
+        }
+
+        function setDrawerOpen(isOpen) {
             const drawer = document.getElementById('navDrawer');
             const overlay = document.getElementById('navDrawerOverlay');
             const isDesktop = window.innerWidth >= 1024;
 
             if (isDesktop) return;
 
-            drawer.classList.toggle('drawer-hidden');
-            drawer.classList.toggle('drawer-visible');
-            overlay.classList.toggle('opacity-0');
-            overlay.classList.toggle('pointer-events-none');
-            document.body.classList.toggle('overflow-hidden');
+            drawer.classList.toggle('drawer-hidden', !isOpen);
+            drawer.classList.toggle('drawer-visible', isOpen);
+            overlay.classList.toggle('opacity-0', !isOpen);
+            overlay.classList.toggle('pointer-events-none', !isOpen);
+            syncBodyScrollLock();
+        }
+
+        function toggleDrawer() {
+            setDrawerOpen(!isDrawerOpen());
         }
 
         function isDetailsOpen() {
             return document.body.classList.contains('sidebar-expanded');
+        }
+
+        function getOpenSheetRect(sheet, isDesktop) {
+            const width = sheet.offsetWidth;
+            const height = sheet.offsetHeight;
+
+            return {
+                left: isDesktop ? window.innerWidth - width : 0,
+                top: isDesktop ? 0 : window.innerHeight - height,
+                width,
+                height,
+            };
+        }
+
+        function getFabHomeCenter(fabDock, fabToggle) {
+            const dockStyle = window.getComputedStyle(fabDock);
+            const right = parseFloat(dockStyle.right) || 0;
+            const bottom = parseFloat(dockStyle.bottom) || 0;
+
+            return {
+                x: window.innerWidth - right - (fabToggle.offsetWidth / 2),
+                y: window.innerHeight - bottom - (fabToggle.offsetHeight / 2),
+            };
+        }
+
+        function getCloseButtonCenter(sheet, closeButton, isDesktop) {
+            const sheetRect = sheet.getBoundingClientRect();
+            const closeRect = closeButton.getBoundingClientRect();
+            const relativeLeft = closeRect.left - sheetRect.left;
+            const relativeTop = closeRect.top - sheetRect.top;
+            const openSheetRect = getOpenSheetRect(sheet, isDesktop);
+
+            return {
+                x: openSheetRect.left + relativeLeft + (closeRect.width / 2),
+                y: openSheetRect.top + relativeTop + (closeRect.height / 2),
+            };
+        }
+
+        function syncFabPosition(isOpen, options = {}) {
+            const { immediate = false } = options;
+            const fabDock = document.getElementById('fabDock');
+            const fabToggle = document.getElementById('fabToggle');
+            const sheet = document.getElementById('detailsSheet');
+            const closeButton = document.getElementById('detailsCloseButton');
+            const isDesktop = window.innerWidth >= 1024;
+
+            if (!fabDock || !fabToggle) return;
+
+            fabDock.classList.toggle('fab-immediate', immediate);
+
+            if (!isOpen || !sheet || !closeButton) {
+                fabDock.style.transform = 'translate3d(0px, 0px, 0px) scale(1)';
+                fabDock.style.opacity = '1';
+                fabDock.style.pointerEvents = 'auto';
+
+                if (immediate) {
+                    window.requestAnimationFrame(() => fabDock.classList.remove('fab-immediate'));
+                }
+                return;
+            }
+
+            const fabHomeCenter = getFabHomeCenter(fabDock, fabToggle);
+            const closeCenter = getCloseButtonCenter(sheet, closeButton, isDesktop);
+            const shiftX = closeCenter.x - fabHomeCenter.x;
+            const shiftY = closeCenter.y - fabHomeCenter.y;
+
+            fabDock.style.transform = `translate3d(${shiftX}px, ${shiftY}px, 0px) scale(0.82)`;
+            fabDock.style.opacity = '0';
+            fabDock.style.pointerEvents = 'none';
+
+            if (immediate) {
+                window.requestAnimationFrame(() => fabDock.classList.remove('fab-immediate'));
+            }
         }
 
         function syncFabState(isOpen) {
@@ -600,7 +751,35 @@
             fabIcon.style.transform = 'rotate(0deg)';
         }
 
-        function setDetailsOpen(isOpen) {
+        function openEasterEgg() {
+            const overlay = document.getElementById('easterEggOverlay');
+            if (!overlay) return;
+
+            const revealOverlay = () => {
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('easter-egg-open');
+                syncBodyScrollLock();
+            };
+
+            if (window.innerWidth < 1024 && isDrawerOpen()) {
+                setDrawerOpen(false);
+                window.setTimeout(revealOverlay, 180);
+                return;
+            }
+
+            revealOverlay();
+        }
+
+        function hideEasterEgg() {
+            const overlay = document.getElementById('easterEggOverlay');
+            if (!overlay) return;
+
+            overlay.classList.remove('easter-egg-open');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            syncBodyScrollLock();
+        }
+
+        function setDetailsOpen(isOpen, options = {}) {
             const body = document.body;
             const sheet = document.getElementById('detailsSheet');
             const overlay = document.getElementById('detailsOverlay');
@@ -610,17 +789,17 @@
             body.classList.toggle('sidebar-collapsed', !isOpen);
 
             if (isDesktop) {
-                body.classList.remove('overflow-hidden');
                 overlay.classList.add('opacity-0', 'pointer-events-none');
                 sheet.classList.remove('translate-y-full');
             } else {
                 sheet.classList.toggle('translate-y-full', !isOpen);
                 overlay.classList.toggle('opacity-0', !isOpen);
                 overlay.classList.toggle('pointer-events-none', !isOpen);
-                body.classList.toggle('overflow-hidden', isOpen);
             }
 
+            syncBodyScrollLock();
             syncFabState(isOpen);
+            syncFabPosition(isOpen, options);
         }
 
         function toggleDetails() {
@@ -636,7 +815,13 @@
         }
 
         window.addEventListener('resize', () => {
-            setDetailsOpen(isDetailsOpen());
+            setDetailsOpen(isDetailsOpen(), { immediate: true });
+        });
+
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && isEasterEggOpen()) {
+                hideEasterEgg();
+            }
         });
     </script>
     <script src="/app.js"></script>
