@@ -497,14 +497,14 @@
         </nav>
         <div class="mt-6 shrink-0 border-t border-outline-variant/10 pt-6 safe-bottom-inset">
             <button class="flex items-center gap-3 w-full py-3 px-4 text-[#ccc3d8]" id="ministrySettingsButton"
-                onclick="openEasterEgg()" type="button">
+                onclick="openEasterEgg()" title="Open Ministry Settings" type="button">
                 <span class="material-symbols-outlined" data-icon="settings">settings</span>
                 <span class="text-sm font-medium">Ministry Settings</span>
             </button>
         </div>
     </aside>
     <!-- Main App Wrapper -->
-    <div class="min-h-screen flex flex-col lg:pl-[280px] main-wrapper">
+    <div class="min-h-screen flex flex-col lg:h-screen lg:min-h-0 lg:pl-[280px] main-wrapper">
         <!-- Top Bar -->
         <header
             class="sticky top-0 h-16 lg:h-20 bg-[#0a0a0f] flex items-center justify-between px-4 lg:px-10 z-40 border-b border-outline-variant/10">
@@ -547,10 +547,11 @@
             </div>
         </div>
         <!-- Main Content -->
-        <main class="flex-1 px-4 py-6 pb-24 lg:px-10 lg:py-8 lg:overflow-y-auto custom-scrollbar">
+        <main class="flex-1 min-h-0 px-4 py-6 pb-24 lg:px-10 lg:py-8 lg:overflow-y-auto custom-scrollbar">
             <div class="mb-8 lg:mb-12">
                 <h2 class="text-4xl lg:text-5xl font-serif text-on-surface mb-1 lg:mb-2">Vault</h2>
-                <p class="text-[#b8b0c4] font-body text-sm italic opacity-90" id="vaultSubtitle">Curated logic for the
+                <p class="text-[#b8b0c4] font-body text-sm italic opacity-90 lg:cursor-help" id="vaultSubtitle"
+                    title="Spells are saved prompts, circles are categories, and copies count how many times prompts were copied.">Curated logic for the
                     modern alchemist.</p>
             </div>
             <!-- Filters -->
@@ -576,7 +577,7 @@
                 </label>
                 <button
                     class="w-full sm:w-auto sm:self-end h-[51px] flex items-center justify-center gap-2 px-4 bg-surface-container-low border border-outline-variant/20 text-[10px] lg:text-xs font-bold font-sans uppercase tracking-widest text-on-surface cursor-pointer hover:bg-surface-container transition-colors"
-                    id="clearFiltersBtn" type="button">
+                    id="clearFiltersBtn" title="Reset search, model, category, and sort filters" type="button">
                     <span>Clear Filters</span>
                     <span class="material-symbols-outlined text-xs">restart_alt</span>
                 </button>
@@ -604,7 +605,7 @@
     <div class="fixed bottom-8 right-8 z-[100]" id="fabDock">
         <button
             class="h-14 w-14 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center shadow-[0_8px_24px_rgba(124,58,237,0.4)] active:scale-95 group"
-            id="fabToggle" onclick="openNewPrompt()" type="button">
+            id="fabToggle" onclick="openNewPrompt()" title="Create a new spell" type="button">
             <span class="material-symbols-outlined text-3xl" id="fabIcon">add</span>
         </button>
     </div>
@@ -761,10 +762,10 @@
             <div class="space-y-3">
                 <button
                     class="w-full bg-primary-container lg:bg-gradient-to-r lg:from-primary-container lg:to-[#6a29d4] hover:brightness-110 text-on-primary-container font-bold font-sans py-4 text-xs lg:text-sm tracking-[0.2em] uppercase transition-all shadow-lg active:scale-[0.98]"
-                    onclick="savePrompt()" type="button">Brew Spell</button>
+                    onclick="savePrompt()" title="Save this spell to your vault" type="button">Brew Spell</button>
                 <button
                     class="w-full border border-error/30 text-error py-3 text-xs font-bold font-sans tracking-widest uppercase hover:bg-error/10 transition-all"
-                    onclick="deletePrompt()" type="button">Delete Spell</button>
+                    onclick="deletePrompt()" title="Delete this spell permanently" type="button">Delete Spell</button>
             </div>
         </div>
     </aside>

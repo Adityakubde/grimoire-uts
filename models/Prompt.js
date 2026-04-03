@@ -32,21 +32,9 @@ const promptSchema = new mongoose.Schema(
       min: 0,
       max: 5,
     },
-    isFavourite: {
-      type: Boolean,
-      default: false,
-    },
-    isArchived: {
-      type: Boolean,
-      default: false,
-    },
     usageCount: {
       type: Number,
       default: 0,
-    },
-    lastUsedAt: {
-      type: Date,
-      default: null,
     },
   },
   { timestamps: true }

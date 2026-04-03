@@ -118,6 +118,10 @@ function buildBodyPreview(body, maxLength = 220) {
     : normalised;
 }
 
+function buildStatsTooltip(stats) {
+  return `${stats.total} spells = saved prompts, ${stats.totalCategories} circles = categories, ${stats.totalCopies} copies = total prompt copies.`;
+}
+
 function showToast(message) {
   const toast = document.getElementById('appToast');
   const messageEl = document.getElementById('appToastMessage');
@@ -302,6 +306,7 @@ function cardHTML(prompt) {
   const modelClass = MODEL_COLOURS[promptModel] || MODEL_COLOURS.Other;
   const bodyPreview = escHtml(buildBodyPreview(prompt.body));
   const categoryName = prompt.category?.name ? ` | ${escHtml(prompt.category.name)}` : '';
+  const usageLabel = `USED ${prompt.usageCount || 0}X`;
 
   return `
     <div class="spell-card bg-[#111118] p-4 lg:p-5 hover:bg-surface-container-high active:scale-[0.98]
@@ -316,7 +321,7 @@ function cardHTML(prompt) {
           <button class="spell-card-copy-icon flex items-center justify-center opacity-80"
             onclick="copyPromptPreview(event, '${prompt._id}')"
             aria-label="Copy spell"
-            title="Copy spell"
+            title="Copy this spell"
             type="button">
             <span class="material-symbols-outlined text-[17px]">content_copy</span>
           </button>
@@ -326,14 +331,20 @@ function cardHTML(prompt) {
       <button class="spell-card-preview w-full appearance-none bg-surface-container-lowest p-3 mb-3 font-mono text-[10px] lg:text-xs
                   text-primary leading-relaxed border border-outline-variant/5 text-left transition-colors hover:border-primary/25 cursor-copy"
         onclick="copyPromptPreview(event, '${prompt._id}')"
-        title="Copy spell"
+        title="Copy this spell"
         type="button">
         <span class="spell-card-preview-text">"${bodyPreview}"</span>
       </button>
-      <div class="mt-auto flex items-center justify-between gap-4">
+      <div class="mt-auto flex items-center gap-3">
         <span class="${modelClass} px-2 py-0.5 lg:py-1 text-[9px] lg:text-[10px]
-                      font-bold font-sans tracking-widest uppercase">${escHtml(promptModel)}</span>
-        <span class="text-[10px] lg:text-[11px] text-[#b8b0c4] font-sans">
+                      font-bold font-sans tracking-widest uppercase"
+          title="Model used for this spell">${escHtml(promptModel)}</span>
+        <span class="text-[9px] lg:text-[10px] text-[#8f889b] font-sans uppercase tracking-[0.18em] whitespace-nowrap"
+          title="Number of times this spell was copied">
+          ${usageLabel}
+        </span>
+        <span class="ml-auto text-right text-[10px] lg:text-[11px] text-[#b8b0c4] font-sans"
+          title="Last updated time and category">
           ${timeAgo(prompt.updatedAt)}${categoryName}
         </span>
       </div>
@@ -456,6 +467,7 @@ function renderCategoryList(errorMessage = '') {
     <div class="pt-3">
       <button onclick="openNewCategory()"
         class="flex items-center gap-3 w-full py-2 px-3 text-outline-variant hover:text-on-surface hover:bg-surface-container-low transition-all text-xs font-sans"
+        title="Create a new category"
         type="button">
         <span>+ Add Category</span>
       </button>
@@ -693,15 +705,18 @@ async function loadStats(options = {}) {
   if (showLoading) {
     loadingState.stats = true;
     subtitle.textContent = 'Curated logic for the modern alchemist.';
+    subtitle.title = 'Spells are saved prompts, circles are categories, and copies count how many times prompts were copied.';
   }
 
   try {
     const stats = await apiFetch('/api/stats');
     loadingState.stats = false;
     subtitle.textContent = `Curated logic across ${stats.total} spells, ${stats.totalCategories} circles, and ${stats.totalCopies} copies.`;
+    subtitle.title = buildStatsTooltip(stats);
   } catch (error) {
     loadingState.stats = false;
     subtitle.textContent = 'Curated logic for the modern alchemist.';
+    subtitle.title = 'Spells are saved prompts, circles are categories, and copies count how many times prompts were copied.';
     console.error(error);
   }
 }

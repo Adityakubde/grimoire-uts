@@ -12,11 +12,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const DEFAULT_CATEGORIES = [
-  { name: 'Coding', colour: '#3b82f6', icon: 'code' },
-  { name: 'Writing', colour: '#10b981', icon: 'edit' },
-  { name: 'Research', colour: '#8b5cf6', icon: 'search' },
-  { name: 'Creative', colour: '#ec4899', icon: 'palette' },
-  { name: 'Data Analysis', colour: '#f59e0b', icon: 'analytics' },
+  { name: 'Coding', colour: '#3b82f6' },
+  { name: 'Writing', colour: '#10b981' },
+  { name: 'Research', colour: '#8b5cf6' },
+  { name: 'Creative', colour: '#ec4899' },
+  { name: 'Data Analysis', colour: '#f59e0b' },
 ];
 
 let connectionPromise = null;
@@ -76,14 +76,6 @@ function buildPromptPayload(body) {
     payload.rating = clampRating(body.rating);
   }
 
-  if ('isFavourite' in body) {
-    payload.isFavourite = Boolean(body.isFavourite);
-  }
-
-  if ('isArchived' in body) {
-    payload.isArchived = Boolean(body.isArchived);
-  }
-
   return payload;
 }
 
@@ -128,9 +120,7 @@ async function connectToDatabase() {
 }
 
 function buildPromptQuery(queryString) {
-  const query = {
-    isArchived: queryString.archived === 'true',
-  };
+  const query = {};
 
   if (queryString.model) {
     query.model = queryString.model;
@@ -250,7 +240,6 @@ app.post('/api/prompts/:id/copy', async (req, res, next) => {
   try {
     const prompt = await Prompt.findByIdAndUpdate(req.params.id, {
       $inc: { usageCount: 1 },
-      lastUsedAt: new Date(),
     });
 
     if (!prompt) {
@@ -277,7 +266,6 @@ app.post('/api/categories', async (req, res, next) => {
     const category = await Category.create({
       name: String(req.body.name || '').trim(),
       colour: String(req.body.colour || '#7c3aed').trim(),
-      icon: String(req.body.icon || 'folder').trim(),
     });
 
     res.status(201).json({ data: category });
@@ -293,7 +281,6 @@ app.patch('/api/categories/:id', async (req, res, next) => {
       {
         ...(req.body.name ? { name: String(req.body.name).trim() } : {}),
         ...(req.body.colour ? { colour: String(req.body.colour).trim() } : {}),
-        ...(req.body.icon ? { icon: String(req.body.icon).trim() } : {}),
       },
       { new: true, runValidators: true }
     );
@@ -331,7 +318,7 @@ app.delete('/api/categories/:id', async (req, res, next) => {
 app.get('/api/stats', async (req, res, next) => {
   try {
     const [total, totalCategories, copies] = await Promise.all([
-      Prompt.countDocuments({ isArchived: false }),
+      Prompt.countDocuments(),
       Category.countDocuments(),
       Prompt.aggregate([
         { $group: { _id: null, sum: { $sum: '$usageCount' } } },

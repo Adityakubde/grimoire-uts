@@ -13,11 +13,6 @@ const categorySchema = new mongoose.Schema(
       default: '#7c3aed',
       trim: true,
     },
-    icon: {
-      type: String,
-      default: 'folder',
-      trim: true,
-    },
   },
   { timestamps: true }
 );
