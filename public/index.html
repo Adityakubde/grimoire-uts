@@ -226,7 +226,7 @@
 
         /* FAB Position Logic */
         #fabDock {
-            transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+            transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s ease;
             will-change: transform, opacity;
         }
 
@@ -501,8 +501,8 @@
                     <div class="bg-[#111118] border border-outline-variant/10">
                         <img alt="Animated easter egg surprise"
                             class="w-full h-auto max-h-[320px] object-contain block"
-                            onerror="this.onerror=null;this.src='/assets/easter-egg-preview.jpg?v=1';"
-                            src="/assets/easter-egg.png?v=2" />
+                            onerror="this.onerror=null;this.src='/assets/easter-egg-preview.jpg?v=2';"
+                            src="/assets/easter-egg.webp?v=2" />
                     </div>
                 </div>
             </div>
@@ -670,6 +670,8 @@
             return document.body.classList.contains('sidebar-expanded');
         }
 
+        let fabFadeTimeout = null;
+
         function getOpenSheetRect(sheet, isDesktop) {
             const width = sheet.offsetWidth;
             const height = sheet.offsetHeight;
@@ -716,6 +718,7 @@
 
             if (!fabDock || !fabToggle) return;
 
+            window.clearTimeout(fabFadeTimeout);
             fabDock.classList.toggle('fab-immediate', immediate);
 
             if (!isOpen || !sheet || !closeButton) {
@@ -734,9 +737,17 @@
             const shiftX = closeCenter.x - fabHomeCenter.x;
             const shiftY = closeCenter.y - fabHomeCenter.y;
 
+            fabDock.style.opacity = '1';
             fabDock.style.transform = `translate3d(${shiftX}px, ${shiftY}px, 0px) scale(0.82)`;
-            fabDock.style.opacity = '0';
             fabDock.style.pointerEvents = 'none';
+
+            if (immediate) {
+                fabDock.style.opacity = '0';
+            } else {
+                fabFadeTimeout = window.setTimeout(() => {
+                    fabDock.style.opacity = '0';
+                }, 210);
+            }
 
             if (immediate) {
                 window.requestAnimationFrame(() => fabDock.classList.remove('fab-immediate'));
