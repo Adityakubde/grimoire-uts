@@ -62,6 +62,9 @@ Prompt collections usually end up scattered across notes apps, chat history, and
 
 ```text
 grimoire-uts/
+|-- database/
+|   |-- categories.json
+|   `-- prompts.json
 |-- models/
 |   |-- Category.js
 |   `-- Prompt.js
@@ -88,6 +91,19 @@ grimoire-uts/
 | `/api/categories` | `GET`, `POST` |
 | `/api/categories/:id` | `PATCH`, `DELETE` |
 | `/api/stats` | `GET` |
+
+## Database Export
+
+MongoDB exports are included in:
+
+- `database/categories.json`
+- `database/prompts.json`
+
+To load them into MongoDB Compass:
+
+1. Create or open your `grimoire` database.
+2. Create a `categories` collection and import `database/categories.json`.
+3. Create a `prompts` collection and import `database/prompts.json`.
 
 ## Local Setup
 

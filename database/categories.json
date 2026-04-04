@@ -1,0 +1,47 @@
+[
+  {
+    "_id": "69ce2454b1c1137e3e50b6ba",
+    "name": "Coding",
+    "colour": "#3b82f6",
+    "icon": "code",
+    "__v": 0,
+    "createdAt": "2026-04-02T08:09:56.708Z",
+    "updatedAt": "2026-04-02T08:09:56.708Z"
+  },
+  {
+    "_id": "69ce2454b1c1137e3e50b6bd",
+    "name": "Creative",
+    "colour": "#ec4899",
+    "icon": "palette",
+    "__v": 0,
+    "createdAt": "2026-04-02T08:09:56.709Z",
+    "updatedAt": "2026-04-02T08:09:56.709Z"
+  },
+  {
+    "_id": "69ce97cbe365286a29bfc17c",
+    "name": "Mock",
+    "colour": "#14b8a6",
+    "icon": "folder",
+    "createdAt": "2026-04-02T16:22:35.329Z",
+    "updatedAt": "2026-04-02T16:22:35.329Z",
+    "__v": 0
+  },
+  {
+    "_id": "69ce2454b1c1137e3e50b6bc",
+    "name": "Research",
+    "colour": "#8b5cf6",
+    "icon": "search",
+    "__v": 0,
+    "createdAt": "2026-04-02T08:09:56.709Z",
+    "updatedAt": "2026-04-02T08:09:56.709Z"
+  },
+  {
+    "_id": "69ce97c1e365286a29bfc174",
+    "name": "Test 2",
+    "colour": "#f97316",
+    "icon": "folder",
+    "createdAt": "2026-04-02T16:22:25.474Z",
+    "updatedAt": "2026-04-02T16:22:25.474Z",
+    "__v": 0
+  }
+]
