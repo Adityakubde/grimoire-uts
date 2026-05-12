@@ -1,0 +1,276 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+body {
+  font-family: 'Newsreader', serif;
+  background-color: #0a0a0f;
+  color: #e4e1e9;
+}
+
+.font-serif {
+  font-family: 'Newsreader', serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.font-sans {
+  font-family: 'Manrope', sans-serif;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #35343a;
+}
+
+.vault-filter-select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none !important;
+  border: 1px solid rgba(74, 68, 85, 0.75);
+  background-color: #0e0e13;
+  color: #d2bbff;
+  padding: 0.9rem 3rem 0.9rem 1rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  color-scheme: dark;
+}
+
+.vault-filter-select:hover {
+  background-color: #131318;
+  border-color: rgba(149, 141, 161, 0.55);
+}
+
+.vault-filter-select:focus {
+  outline: none;
+  border-color: #d2bbff;
+  box-shadow: 0 0 0 1px rgba(210, 187, 255, 0.25);
+}
+
+.vault-filter-select option {
+  background-color: #0e0e13;
+  color: #d2bbff;
+}
+
+.vault-filter-chevron {
+  transition: color 0.2s ease;
+}
+
+.vault-filter-field:focus-within .vault-filter-chevron {
+  color: #d2bbff;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+
+  50% {
+    transform: translateY(-3px) scaleY(1.05);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.4;
+    filter: blur(4px);
+  }
+
+  50% {
+    opacity: 0.8;
+    filter: blur(6px);
+  }
+}
+
+.book-icon-animate {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.glow-animate {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-block {
+  background: linear-gradient(90deg, rgba(53, 52, 58, 0.45) 25%, rgba(74, 68, 85, 0.7) 50%, rgba(53, 52, 58, 0.45) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.drawer-content {
+  transition: transform 0.3s ease-in-out;
+}
+
+.drawer-hidden {
+  transform: translateX(-100%);
+}
+
+.drawer-visible {
+  transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+  .drawer-hidden {
+    transform: translateX(0);
+  }
+}
+
+.spell-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 14.5rem;
+  height: 100%;
+}
+
+.spell-card-header {
+  min-height: 2.35rem;
+}
+
+.spell-card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.spell-card-copy-icon {
+  color: #8f889b;
+  transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.spell-card-copy-icon:hover {
+  color: #d2bbff;
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.spell-card-preview {
+  flex: 1;
+  min-height: 5.75rem;
+  overflow: hidden;
+}
+
+.spell-card-preview-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+  white-space: normal;
+}
+
+.app-toast {
+  opacity: 0;
+  transform: translate(-50%, 14px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.app-toast.toast-open {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.app-toast-panel {
+  border: 1px solid rgba(210, 187, 255, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(124, 58, 237, 0.28),
+    0 0 26px rgba(124, 58, 237, 0.26),
+    0 14px 40px rgba(0, 0, 0, 0.38);
+}
+
+.sheet-field {
+  background-color: #0e0e13;
+  border: 1px solid rgba(74, 68, 85, 0.65);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  color-scheme: dark;
+}
+
+.sheet-field:hover {
+  border-color: rgba(149, 141, 161, 0.48);
+}
+
+.sheet-field:focus,
+.sheet-field:focus-visible {
+  outline: none;
+  border-color: #d2bbff !important;
+  box-shadow: 0 0 0 1px rgba(210, 187, 255, 0.32), 0 0 0 4px rgba(124, 58, 237, 0.12);
+}
+
+.sheet-field::placeholder {
+  color: #8f889b;
+}
+
+.sheet-field option {
+  background-color: #0e0e13;
+  color: #d2bbff;
+}
+
+.sheet-title-field {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(74, 68, 85, 0.45) !important;
+  padding: 0.5rem 0 !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  color: #e4e1e9 !important;
+  box-shadow: none;
+}
+
+.sheet-title-field::placeholder {
+  color: #b8b0c4;
+  opacity: 0.7;
+}
+
+.sheet-title-field:hover {
+  border-bottom-color: rgba(149, 141, 161, 0.62) !important;
+}
+
+.sheet-title-field:focus,
+.sheet-title-field:focus-visible {
+  outline: none;
+  background: rgba(14, 14, 19, 0.72) !important;
+  border-bottom-color: #d2bbff !important;
+  box-shadow: 0 0 0 1px rgba(210, 187, 255, 0.3), 0 0 0 4px rgba(124, 58, 237, 0.12);
+}
+
+.safe-bottom-inset {
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 1024px) {
+  .spell-card {
+    min-height: 16.25rem;
+  }
+
+  .spell-card-preview {
+    min-height: 6.25rem;
+  }
+
+  .spell-card-preview-text {
+    -webkit-line-clamp: 5;
+  }
+}

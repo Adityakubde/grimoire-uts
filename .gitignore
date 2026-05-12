@@ -1,8 +1,12 @@
 node_modules/
+dist/
 .env
 .env.local
 .env*.local
+*firebase-adminsdk*.json
 .vercel/
 npm-debug.log*
 temp.html
 s_screenshot.jpg
+dev-server*.log
+output/

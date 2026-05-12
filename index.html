@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grimoire Prompt Vault</title>
+    <link href="/assets/grimoire-mark.svg" rel="icon" type="image/svg+xml" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@200..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              error: '#ffb4ab',
+              'surface-container-low': '#1b1b20',
+              'surface-bright': '#39383e',
+              primary: '#d2bbff',
+              'surface-container': '#1f1f25',
+              'surface-container-highest': '#35343a',
+              'outline-variant': '#4a4455',
+              'secondary-container': '#b98820',
+              'surface-container-lowest': '#0e0e13',
+              'on-background': '#e4e1e9',
+              'primary-container': '#7c3aed',
+              'surface-dim': '#131318',
+              outline: '#958da1',
+              surface: '#131318',
+              'on-primary-container': '#ede0ff',
+              'on-surface-variant': '#ccc3d8',
+              background: '#0a0a0f',
+              tertiary: '#f5be52',
+              'on-surface': '#e4e1e9',
+              secondary: '#f5be52',
+              'surface-container-high': '#2a292f',
+            },
+            fontFamily: {
+              headline: ['Newsreader', 'serif'],
+              body: ['Newsreader', 'serif'],
+              label: ['Manrope', 'sans-serif'],
+            },
+            borderRadius: {
+              DEFAULT: '0px',
+              lg: '0px',
+              xl: '0px',
+              full: '9999px',
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-background text-on-surface overflow-x-hidden font-body">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
