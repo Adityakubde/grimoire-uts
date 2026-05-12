@@ -150,7 +150,7 @@ function roleFromAdminEmails(email, fallbackRole = 'user') {
     return fallbackRole;
   }
 
-  return admins.has(String(email || '').trim().toLowerCase()) ? 'admin' : fallbackRole;
+  return admins.has(String(email || '').trim().toLowerCase()) ? 'admin' : 'user';
 }
 
 function docData(snapshot) {
@@ -291,7 +291,7 @@ async function ensureUserProfile(decodedToken, displayName = '') {
   const existing = docData(await userRef.get());
   if (existing) {
     const configuredRole = roleFromAdminEmails(existing.email || decodedToken.email, existing.role || 'user');
-    if (configuredRole === 'admin' && existing.role !== 'admin') {
+    if (configuredRole !== existing.role) {
       await userRef.update({
         role: configuredRole,
         updatedAt: serverTimestamp(),
@@ -875,19 +875,12 @@ app.patch(
     }
 
     if (req.body.role) {
-      const role = String(req.body.role);
-      if (!['admin', 'user'].includes(role)) {
-        throw new HttpError(400, 'Invalid role.');
-      }
-      if (req.params.id === req.profile.id && role !== req.profile.role) {
-        throw new HttpError(400, 'You cannot change your own role.');
-      }
-      payload.role = role;
+      throw new HttpError(400, 'Roles are controlled by ADMIN_EMAILS.');
     }
 
     if ('isActive' in req.body) {
       if (req.params.id === req.profile.id && req.body.isActive === false) {
-        throw new HttpError(400, 'You cannot deactivate your own account.');
+        throw new HttpError(400, 'You cannot update your own account status.');
       }
       payload.isActive = Boolean(req.body.isActive);
       await auth().updateUser(req.params.id, { disabled: !payload.isActive });
@@ -911,7 +904,7 @@ app.delete(
   requireAdmin,
   asyncHandler(async (req, res) => {
     if (req.params.id === req.profile.id) {
-      throw new HttpError(400, 'You cannot deactivate your own account.');
+      throw new HttpError(400, 'You cannot delete your own account.');
     }
 
     const userRef = db().collection('users').doc(req.params.id);
@@ -929,7 +922,7 @@ app.delete(
       auth().updateUser(req.params.id, { disabled: true }),
     ]);
 
-    await logActivity(req.profile.id, 'delete', 'user', req.params.id, `Deactivated user "${existing.email}"`);
+    await logActivity(req.profile.id, 'delete', 'user', req.params.id, `Deleted user "${existing.email}"`);
     res.json({ data: { deleted: true } });
   })
 );

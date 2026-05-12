@@ -364,34 +364,14 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     showToast('Category Deleted');
   }
 
-  async function updateUserRole(id, role) {
-    await apiRequest(`/api/users/${id}`, {
-      method: 'PATCH',
-      tokenProvider: getToken,
-      body: { role },
-    });
-    await loadAdmin();
-    showToast('User Updated');
-  }
-
-  async function toggleUserStatus(user) {
-    await apiRequest(`/api/users/${user.id}`, {
-      method: 'PATCH',
-      tokenProvider: getToken,
-      body: { isActive: !user.isActive },
-    });
-    await loadAdmin();
-    showToast('User Updated');
-  }
-
   async function softDeleteUser(user) {
-    if (!window.confirm(`Deactivate ${user.email}?`)) {
+    if (!window.confirm(`Delete ${user.email}? This disables the account.`)) {
       return;
     }
 
     await apiRequest(`/api/users/${user.id}`, { method: 'DELETE', tokenProvider: getToken });
     await loadAdmin();
-    showToast('User Deactivated');
+    showToast('User Deleted');
   }
 
   return (
@@ -578,8 +558,6 @@ export default function VaultApp({ getToken, profile, onLogout }) {
           loading={state.loadingAdmin}
           onRefresh={loadAdmin}
           onSoftDeleteUser={softDeleteUser}
-          onToggleUserStatus={toggleUserStatus}
-          onUpdateUserRole={updateUserRole}
           users={state.users}
         />
       ) : (

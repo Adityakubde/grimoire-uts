@@ -45,7 +45,7 @@ Prompt templates are easy to lose when they are spread across notes apps, chat h
 | Backend + database | Express API in `server.js`; Cloud Firestore collections store app data |
 | Registration/login | Firebase Authentication email/password flow in `AuthPanel.jsx` |
 | Password hashing + JWT | Firebase Authentication manages password storage and issues Firebase ID tokens, which are JWTs |
-| CRUD entity 1 | Users: create profile on first session, read list/detail, update role/status, soft delete by disabling account |
+| CRUD entity 1 | Users: create profile on first session, read list/detail, update account fields through the API, and soft delete by disabling account |
 | CRUD entity 2 | Prompts: create, read, update, delete, copy-count tracking |
 | CRUD entity 3 | Categories: create, read, rename/update, delete |
 | Live search | Existing search bar filters prompt cards immediately through React state |
@@ -121,7 +121,7 @@ PORT=4000
 ADMIN_EMAILS=kubdeadi@gmail.com
 ```
 
-`ADMIN_EMAILS` is a comma-separated server-only list. Accounts registered with one of those emails receive admin access; other accounts start as normal users. The downloaded service account JSON file should stay outside the repository.
+`ADMIN_EMAILS` is a comma-separated server-only list. Accounts registered with one of those emails receive admin access; other accounts start as normal users. Roles are displayed in the admin table but are not edited from the UI. The downloaded service account JSON file should stay outside the repository.
 
 7. Start the app:
 
@@ -142,7 +142,7 @@ http://localhost:5173
 3. Create, rename, and delete a category.
 4. Register another user and confirm they can only access their own vault.
 5. Log back in as admin and open the Admin Panel.
-6. Change a user role/status and review recent activity logs.
+6. Delete a normal user account and review recent activity logs.
 7. Confirm a normal user cannot access admin routes.
 
 ## Design and Technical Rationale

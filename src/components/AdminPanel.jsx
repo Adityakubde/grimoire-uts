@@ -5,8 +5,6 @@ export default function AdminPanel({
   loading,
   onRefresh,
   onSoftDeleteUser,
-  onToggleUserStatus,
-  onUpdateUserRole,
   users,
 }) {
   return (
@@ -56,14 +54,9 @@ export default function AdminPanel({
                     <td className="px-4 py-4 text-on-surface">{user.displayName}</td>
                     <td className="px-4 py-4 text-[#b8b0c4]">{user.email}</td>
                     <td className="px-4 py-4">
-                      <select
-                        className="sheet-field text-primary font-sans text-xs p-2 focus:ring-0"
-                        onChange={(event) => onUpdateUserRole(user.id, event.target.value)}
-                        value={user.role}
-                      >
-                        <option value="admin">admin</option>
-                        <option value="user">user</option>
-                      </select>
+                      <span className="inline-flex border border-outline-variant/30 px-3 py-2 text-primary text-[10px] uppercase tracking-widest">
+                        {user.role}
+                      </span>
                     </td>
                     <td className="px-4 py-4">
                       <span className={user.isActive ? 'text-green-300' : 'text-error'}>
@@ -73,13 +66,6 @@ export default function AdminPanel({
                     <td className="px-4 py-4 text-[#b8b0c4]">{formatFullDate(user.lastLoginAt)}</td>
                     <td className="px-4 py-4">
                       <div className="flex justify-end gap-2">
-                        <button
-                          className="border border-outline-variant/30 px-3 py-2 text-[10px] uppercase tracking-widest hover:bg-surface-container"
-                          onClick={() => onToggleUserStatus(user)}
-                          type="button"
-                        >
-                          {user.isActive ? 'Deactivate' : 'Activate'}
-                        </button>
                         <button
                           className="border border-error/30 text-error px-3 py-2 text-[10px] uppercase tracking-widest hover:bg-error/10"
                           onClick={() => onSoftDeleteUser(user)}
