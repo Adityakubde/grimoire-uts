@@ -134,6 +134,25 @@ function safePromptType(value) {
   return PROMPT_TYPES.includes(promptType) ? promptType : 'General';
 }
 
+function adminEmailSet() {
+  return new Set(
+    String(process.env.ADMIN_EMAILS || '')
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean)
+  );
+}
+
+function roleFromAdminEmails(email, fallbackRole = 'user') {
+  const admins = adminEmailSet();
+
+  if (!admins.size) {
+    return fallbackRole;
+  }
+
+  return admins.has(String(email || '').trim().toLowerCase()) ? 'admin' : fallbackRole;
+}
+
 function docData(snapshot) {
   return snapshot.exists ? { id: snapshot.id, ...snapshot.data() } : null;
 }
@@ -271,6 +290,15 @@ async function ensureUserProfile(decodedToken, displayName = '') {
   const userRef = db().collection('users').doc(decodedToken.uid);
   const existing = docData(await userRef.get());
   if (existing) {
+    const configuredRole = roleFromAdminEmails(existing.email || decodedToken.email, existing.role || 'user');
+    if (configuredRole === 'admin' && existing.role !== 'admin') {
+      await userRef.update({
+        role: configuredRole,
+        updatedAt: serverTimestamp(),
+      });
+      existing.role = configuredRole;
+    }
+
     return {
       profile: existing,
       created: false,
@@ -288,14 +316,16 @@ async function ensureUserProfile(decodedToken, displayName = '') {
     }
 
     const firstUserSnapshot = await transaction.get(db().collection('users').limit(1));
-    const role = firstUserSnapshot.empty ? 'admin' : 'user';
+    const email = authUser.email || decodedToken.email || '';
+    const fallbackRole = firstUserSnapshot.empty ? 'admin' : 'user';
+    const role = roleFromAdminEmails(email, fallbackRole);
     const now = serverTimestamp();
     const profileData = {
       displayName:
         String(displayName || authUser.displayName || '').trim() ||
-        authUser.email?.split('@')[0] ||
+        email.split('@')[0] ||
         'Grimoire User',
-      email: authUser.email || decodedToken.email || '',
+      email,
       role,
       isActive: true,
       lastLoginAt: now,

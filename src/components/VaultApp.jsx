@@ -667,10 +667,12 @@ export default function VaultApp({ getToken, profile, onLogout }) {
       )}
 
       {view === 'vault' && (
-        <div className="fixed bottom-8 right-8 z-[100]">
+        <div className={`fixed bottom-8 right-8 z-[100] app-fab ${sheetOpen ? 'app-fab-hidden' : ''}`}>
           <button
             className="h-14 w-14 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center shadow-[0_8px_24px_rgba(124,58,237,0.4)] active:scale-95 group"
+            disabled={sheetOpen}
             onClick={openNewPrompt}
+            tabIndex={sheetOpen ? -1 : 0}
             title="Create a new spell"
             type="button"
           >

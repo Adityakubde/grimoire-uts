@@ -67,7 +67,7 @@ export default function AuthPanel({ onAuthenticated, onAuthStarting }) {
             <p className="font-sans text-sm text-[#b8b0c4]">
               {mode === 'login'
                 ? 'Sign in to manage your saved spells.'
-                : 'The first account becomes the admin profile.'}
+                : 'Admin access follows the approved email list.'}
             </p>
           </div>
 
@@ -79,7 +79,7 @@ export default function AuthPanel({ onAuthenticated, onAuthStarting }) {
               <input
                 className="sheet-field w-full text-primary font-sans text-sm p-3 focus:ring-0"
                 onChange={(event) => setDisplayName(event.target.value)}
-                placeholder="Aditya"
+                placeholder="Enter name"
                 required
                 type="text"
                 value={displayName}

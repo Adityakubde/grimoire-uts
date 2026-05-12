@@ -118,9 +118,10 @@ FIREBASE_PROJECT_ID=...
 FIREBASE_CLIENT_EMAIL=...
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 PORT=4000
+ADMIN_EMAILS=kubdeadi@gmail.com
 ```
 
-The downloaded service account JSON file should stay outside the repository.
+`ADMIN_EMAILS` is a comma-separated server-only list. Accounts registered with one of those emails receive admin access; other accounts start as normal users. The downloaded service account JSON file should stay outside the repository.
 
 7. Start the app:
 
@@ -136,7 +137,7 @@ http://localhost:5173
 
 ## How To Test
 
-1. Register the first account. It becomes the admin account.
+1. Add the demo admin email to `ADMIN_EMAILS`, then register that account.
 2. Create, edit, search, copy, and delete a spell.
 3. Create, rename, and delete a category.
 4. Register another user and confirm they can only access their own vault.
@@ -186,14 +187,14 @@ Individual submission by Aditya.
 - The Firebase Admin private key is only used by `server.js`.
 - The React app only receives Firebase Web App config values.
 - API requests must include a Firebase ID token.
-- Admin routes check `profile.role === "admin"` before managing users.
+- Admin emails are configured in server-only `.env`; admin routes check `profile.role === "admin"` before managing users.
 - User deletion is a soft delete using `isActive = false` plus Firebase account disabling.
 
 ## Demo Q&A Notes
 
 - Three CRUD entities are `users`, `prompts`, and `categories`.
 - `activities` supports the admin profile/history requirement.
-- The first registered user becomes admin so the app can be set up without manual database editing.
+- `ADMIN_EMAILS` separates admin accounts from normal users without adding Firebase custom-claim setup.
 - Live search is implemented in React state for quick filtering and no page reloads.
 - Firestore records are owner-scoped so normal users only work with their own vault data.
 

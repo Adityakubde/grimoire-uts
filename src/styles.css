@@ -184,6 +184,19 @@ body {
   white-space: normal;
 }
 
+.app-fab {
+  opacity: 1;
+  transform: translate(0, 0) scale(1) rotate(0deg);
+  transform-origin: center;
+  transition: opacity 0.28s ease, transform 0.32s ease;
+}
+
+.app-fab-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(16px, -42vh) scale(0.25) rotate(45deg);
+}
+
 .app-toast {
   opacity: 0;
   transform: translate(-50%, 14px);
