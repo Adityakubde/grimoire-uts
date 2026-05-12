@@ -10,6 +10,7 @@ export default function App() {
   const [booting, setBooting] = useState(true);
   const manualAuthRef = useRef(false);
   const sessionHandledUidRef = useRef('');
+  const authResolvedRef = useRef(false);
 
   const getToken = useCallback(async () => {
     if (!auth.currentUser) {
@@ -20,7 +21,16 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const fallbackTimer = window.setTimeout(() => {
+      if (!authResolvedRef.current) {
+        setFirebaseUser(null);
+        setProfile(null);
+        setBooting(false);
+      }
+    }, 8000);
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      authResolvedRef.current = true;
       setBooting(true);
 
       if (!user) {
@@ -49,9 +59,18 @@ export default function App() {
       } finally {
         setBooting(false);
       }
+    }, (error) => {
+      console.warn(error.message);
+      authResolvedRef.current = true;
+      setFirebaseUser(null);
+      setProfile(null);
+      setBooting(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      window.clearTimeout(fallbackTimer);
+      unsubscribe();
+    };
   }, []);
 
   async function handleAuthenticated(data) {

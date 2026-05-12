@@ -555,6 +555,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
       {view === 'admin' ? (
         <AdminPanel
           activities={state.activities}
+          currentUserId={profile.id}
           loading={state.loadingAdmin}
           onRefresh={loadAdmin}
           onSoftDeleteUser={softDeleteUser}

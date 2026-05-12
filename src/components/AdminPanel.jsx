@@ -2,6 +2,7 @@ import { formatFullDate } from '../utils.js';
 
 export default function AdminPanel({
   activities,
+  currentUserId,
   loading,
   onRefresh,
   onSoftDeleteUser,
@@ -49,34 +50,45 @@ export default function AdminPanel({
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
-                {users.map((user) => (
-                  <tr key={user.id} className="font-sans text-sm">
-                    <td className="px-4 py-4 text-on-surface">{user.displayName}</td>
-                    <td className="px-4 py-4 text-[#b8b0c4]">{user.email}</td>
-                    <td className="px-4 py-4">
-                      <span className="inline-flex border border-outline-variant/30 px-3 py-2 text-primary text-[10px] uppercase tracking-widest">
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className={user.isActive ? 'text-green-300' : 'text-error'}>
-                        {user.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-[#b8b0c4]">{formatFullDate(user.lastLoginAt)}</td>
-                    <td className="px-4 py-4">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          className="border border-error/30 text-error px-3 py-2 text-[10px] uppercase tracking-widest hover:bg-error/10"
-                          onClick={() => onSoftDeleteUser(user)}
-                          type="button"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {users.map((user) => {
+                  const isCurrentUser = user.id === currentUserId;
+                  const canDelete = user.isActive && !isCurrentUser;
+                  const actionLabel = isCurrentUser ? 'Current' : user.isActive ? 'Delete' : 'Deleted';
+
+                  return (
+                    <tr key={user.id} className="font-sans text-sm">
+                      <td className="px-4 py-4 text-on-surface">{user.displayName}</td>
+                      <td className="px-4 py-4 text-[#b8b0c4]">{user.email}</td>
+                      <td className="px-4 py-4">
+                        <span className="inline-flex border border-outline-variant/30 px-3 py-2 text-primary text-[10px] uppercase tracking-widest">
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className={user.isActive ? 'text-green-300' : 'text-error'}>
+                          {user.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-[#b8b0c4]">{formatFullDate(user.lastLoginAt)}</td>
+                      <td className="px-4 py-4">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            className={`border px-3 py-2 text-[10px] uppercase tracking-widest ${
+                              canDelete
+                                ? 'border-error/30 text-error hover:bg-error/10'
+                                : 'border-outline-variant/20 text-outline-variant cursor-not-allowed opacity-60'
+                            }`}
+                            disabled={!canDelete}
+                            onClick={() => onSoftDeleteUser(user)}
+                            type="button"
+                          >
+                            {actionLabel}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </section>
