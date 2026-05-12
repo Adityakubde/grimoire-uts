@@ -35,6 +35,7 @@ const initialState = {
   error: '',
 };
 
+// Reducer keeps vault/admin data updates in one predictable place.
 function vaultReducer(state, action) {
   switch (action.type) {
     case 'vault-loading':
@@ -108,6 +109,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
 
   const isAdmin = profile.role === 'admin';
 
+  // Vault load pulls prompts, categories, and stats in one request.
   async function loadVault() {
     dispatch({ type: 'vault-loading', value: true });
 
@@ -122,6 +124,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     }
   }
 
+  // Admin load fetches users and activity logs side by side.
   async function loadAdmin() {
     if (!isAdmin) {
       return;
@@ -167,6 +170,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     }, {});
   }, [state.prompts]);
 
+  // Live search filters prompt cards without a page reload.
   const visiblePrompts = useMemo(() => {
     const searchValue = filters.search.trim().toLowerCase();
     const filtered = state.prompts.filter((prompt) => {
@@ -214,6 +218,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     setSheetOpen(true);
   }
 
+  // Prompt CRUD save handles both create and update from one sheet.
   async function savePrompt(payload) {
     const isEditing = Boolean(payload.id);
     await apiRequest(isEditing ? `/api/prompts/${payload.id}` : '/api/prompts', {
@@ -227,6 +232,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     showToast('Spell Brewed');
   }
 
+  // Prompt delete stays owner-scoped through the backend route.
   async function deletePrompt(id) {
     if (!id) {
       setSheetOpen(false);
@@ -243,6 +249,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     showToast('Spell Deleted');
   }
 
+  // Clipboard fallback keeps copy working when the modern API is unavailable.
   async function writeTextToClipboard(text) {
     const value = String(text || '');
     if (!value) {
@@ -269,6 +276,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     }
   }
 
+  // Copy uses an optimistic count update so the UI responds immediately.
   async function copyPrompt(prompt) {
     let optimisticApplied = false;
 
@@ -315,6 +323,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     }
   }
 
+  // Category create gives the new item a simple rotating colour.
   async function createCategory() {
     const name = window.prompt('Name the new category:');
     if (!name?.trim()) {
@@ -334,6 +343,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     showToast('Category Added');
   }
 
+  // Category rename only sends the changed name to the API.
   async function renameCategory(category) {
     const nextName = window.prompt('Rename this category:', category.name);
     if (!nextName?.trim() || nextName.trim() === category.name) {
@@ -350,6 +360,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     showToast('Category Updated');
   }
 
+  // Category delete uncategorises prompts instead of deleting them.
   async function deleteCategory(category) {
     if (!window.confirm(`Delete ${category.name}? Prompts inside it will become uncategorised.`)) {
       return;
@@ -364,6 +375,7 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     showToast('Category Deleted');
   }
 
+  // User delete is a soft delete that disables the account.
   async function softDeleteUser(user) {
     if (!window.confirm(`Delete ${user.email}? This disables the account.`)) {
       return;
@@ -841,6 +853,7 @@ function PromptSheet({ categories, isOpen, onClose, onDelete, onSave, prompt }) 
     setTags(prompt?.tags || []);
   }, [prompt, isOpen]);
 
+  // Tag input is kept simple for the assignment demo.
   function addTags() {
     const result = window.prompt('Add one or more tags (comma separated):');
     if (!result) {
@@ -850,6 +863,7 @@ function PromptSheet({ categories, isOpen, onClose, onDelete, onSave, prompt }) 
     setTags((current) => normaliseTags([...current, ...result.split(',')]));
   }
 
+  // Sheet save validates the two required prompt fields.
   async function handleSave() {
     if (!title.trim() || !body.trim()) {
       alert('Title and body are required.');

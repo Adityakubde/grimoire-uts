@@ -51,6 +51,7 @@ export default function AdminPanel({
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
                 {users.map((user) => {
+                  // Current admin and already deleted users cannot be deleted again.
                   const isCurrentUser = user.id === currentUserId;
                   const canDelete = user.isActive && !isCurrentUser;
                   const actionLabel = isCurrentUser ? 'Current' : user.isActive ? 'Delete' : 'Deleted';

@@ -57,6 +57,8 @@ Prompt templates are easy to lose when they are spread across notes apps, chat h
 
 ```text
 grimoire-uts/
+|-- api/
+|   `-- index.js              Vercel Function entrypoint for Express API
 |-- public/
 |   `-- assets/               Shared Grimoire images and icon assets
 |-- src/
@@ -75,7 +77,9 @@ grimoire-uts/
 |-- package.json              Scripts and dependencies
 |-- README.md                 Assignment documentation
 |-- server.js                 Express API, Firebase Admin, Firestore CRUD
-`-- vite.config.mjs           Vite dev-server and API proxy config
+|-- vercel.json               Vercel build and routing config
+|-- vite.config.mjs           Vite dev-server and API proxy config
+`-- .vercelignore             Files excluded from Vercel deploy uploads
 ```
 
 ## Firebase Setup
@@ -123,7 +127,7 @@ ADMIN_EMAILS=kubdeadi@gmail.com
 
 `ADMIN_EMAILS` is a comma-separated server-only list. Accounts registered with one of those emails receive admin access; other accounts start as normal users. Roles are displayed in the admin table but are not edited from the UI. The downloaded service account JSON file should stay outside the repository.
 
-7. Start the app:
+7. Start the app locally:
 
 ```bash
 npm run dev
@@ -133,6 +137,39 @@ npm run dev
 
 ```text
 http://localhost:5173
+```
+
+## Vercel Deployment
+
+The project includes `vercel.json` and `api/index.js` for Vercel.
+
+- Vercel builds the React app with `npm run build`.
+- The built frontend is served from `dist`.
+- Requests to `/api/*` are sent to the Express app through `api/index.js`.
+- Frontend routes fall back to `index.html` so the app keeps SPA behavior.
+
+In Vercel Project Settings, add these environment variables for Production and Preview:
+
+```env
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+FIREBASE_PROJECT_ID=...
+FIREBASE_CLIENT_EMAIL=...
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+ADMIN_EMAILS=kubdeadi@gmail.com
+```
+
+Do not upload the Firebase service account JSON file to Vercel. Only copy the needed values into environment variables.
+
+Deploy options:
+
+```bash
+vercel
+vercel --prod
 ```
 
 ## How To Test
@@ -145,13 +182,6 @@ http://localhost:5173
 6. Delete a normal user account and review recent activity logs.
 7. Confirm a normal user cannot access admin routes.
 
-## Design and Technical Rationale
-
-The interface intentionally keeps the Assignment 1 look. The sidebar, vault grid, spell cards, floating action button, editor sheet, dark palette, and Grimoire wording are preserved. The only new screens are the login/register panel and the admin panel because they are required for Assignment 2.
-
-React `useState` is used for local form fields and filters because those values change independently. React `useReducer` is used for shared vault/admin data because prompts, categories, stats, users, activities, loading flags, and error states are updated together after API requests.
-
-Express remains as the backend so authentication checks, role checks, and CRUD operations are easy to inspect. Firebase Authentication manages password sign-in and Firebase ID tokens. Firestore stores only application records, not user passwords.
 
 ## API Summary
 
@@ -179,7 +209,7 @@ Individual submission by Aditya.
 | Frontend React SPA | `src/App.jsx`, `src/components/*`, `src/api.js`, `src/firebaseClient.js`, `src/utils.js`, `src/styles.css`, `index.html` |
 | Backend API and security | `server.js` |
 | Firebase setup | `.env.example`, Firebase Auth, Firestore collections |
-| Project setup and documentation | `package.json`, `vite.config.mjs`, `README.md` |
+| Project setup and deployment | `package.json`, `vite.config.mjs`, `vercel.json`, `api/index.js`, `.vercelignore`, `README.md` |
 
 ## Security Notes
 
@@ -190,13 +220,6 @@ Individual submission by Aditya.
 - Admin emails are configured in server-only `.env`; admin routes check `profile.role === "admin"` before managing users.
 - User deletion is a soft delete using `isActive = false` plus Firebase account disabling.
 
-## Demo Q&A Notes
-
-- Three CRUD entities are `users`, `prompts`, and `categories`.
-- `activities` supports the admin profile/history requirement.
-- `ADMIN_EMAILS` separates admin accounts from normal users without adding Firebase custom-claim setup.
-- Live search is implemented in React state for quick filtering and no page reloads.
-- Firestore records are owner-scoped so normal users only work with their own vault data.
 
 ## References
 
@@ -204,4 +227,3 @@ Individual submission by Aditya.
 - Password-based auth: https://firebase.google.com/docs/auth/web/password-auth
 - Firebase ID tokens and sessions: https://firebase.google.com/docs/auth/admin/manage-sessions
 - Firebase password hash parameters: https://firebase.google.com/docs/cli/auth
-- Firestore free quota: https://firebase.google.com/docs/firestore/pricing

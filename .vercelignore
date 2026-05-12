@@ -1,0 +1,11 @@
+.env
+.env.local
+.env*.local
+.vercel
+dist
+node_modules
+npm-debug.log*
+dev-server*.log
+output
+TUTOR_EXPLANATION_NOTES.md
+*firebase-adminsdk*.json

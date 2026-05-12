@@ -21,6 +21,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Session fallback prevents the loading screen from hanging forever.
     const fallbackTimer = window.setTimeout(() => {
       if (!authResolvedRef.current) {
         setFirebaseUser(null);
@@ -29,6 +30,7 @@ export default function App() {
       }
     }, 8000);
 
+    // Auth listener decides whether to show login or the user's vault.
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       authResolvedRef.current = true;
       setBooting(true);
@@ -73,6 +75,7 @@ export default function App() {
     };
   }, []);
 
+  // Manual login already has the profile, so we avoid a duplicate lookup.
   async function handleAuthenticated(data) {
     manualAuthRef.current = false;
     sessionHandledUidRef.current = auth.currentUser?.uid || '';
@@ -80,6 +83,7 @@ export default function App() {
     setProfile(data.profile);
   }
 
+  // Logout is recorded in the activity log before Firebase signs out.
   async function handleLogout() {
     try {
       await apiRequest('/api/auth/logout', {

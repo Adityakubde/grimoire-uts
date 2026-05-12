@@ -15,6 +15,7 @@ export default function AuthPanel({ onAuthenticated, onAuthStarting }) {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Firebase handles password auth; Express creates the app session profile.
   async function handleSubmit(event) {
     event.preventDefault();
     setError('');

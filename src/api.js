@@ -3,6 +3,7 @@ export async function apiRequest(path, options = {}) {
   const hasBody = body !== undefined;
   const resolvedToken = tokenProvider ? await tokenProvider() : token;
 
+  // API helper attaches the Firebase JWT whenever a route needs login.
   const response = await fetch(path, {
     ...rest,
     headers: {

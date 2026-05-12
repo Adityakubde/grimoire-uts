@@ -39,6 +39,7 @@ function requireEnv(name) {
   return value;
 }
 
+// Firebase Admin starts once so all API routes share the same setup.
 function initFirebase() {
   if (firebaseReady) {
     return;
@@ -134,6 +135,7 @@ function safePromptType(value) {
   return PROMPT_TYPES.includes(promptType) ? promptType : 'General';
 }
 
+// ADMIN_EMAILS keeps role assignment server-side and easy to explain.
 function adminEmailSet() {
   return new Set(
     String(process.env.ADMIN_EMAILS || '')
@@ -143,6 +145,7 @@ function adminEmailSet() {
   );
 }
 
+// Role lookup keeps admin/user access fixed from the approved email list.
 function roleFromAdminEmails(email, fallbackRole = 'user') {
   const admins = adminEmailSet();
 
@@ -229,6 +232,7 @@ function mapActivity(row, profile = null) {
   };
 }
 
+// Prompt payload cleanup keeps create/update validation consistent.
 function buildPromptPayload(body, ownerId) {
   const payload = {
     ownerId,
@@ -261,6 +265,7 @@ function buildPromptPayload(body, ownerId) {
   return payload;
 }
 
+// Starter categories make a new user's sidebar useful straight away.
 async function seedDefaultCategories(userId) {
   const categories = await db()
     .collection('categories')
@@ -286,6 +291,7 @@ async function seedDefaultCategories(userId) {
   await batch.commit();
 }
 
+// User profile links Firebase Auth to app role, status, and display name.
 async function ensureUserProfile(decodedToken, displayName = '') {
   const userRef = db().collection('users').doc(decodedToken.uid);
   const existing = docData(await userRef.get());
@@ -347,6 +353,7 @@ async function ensureUserProfile(decodedToken, displayName = '') {
   };
 }
 
+// Activity logs give the admin panel a simple audit history.
 async function logActivity(userId, action, entityType, entityId, summary, metadata = {}) {
   try {
     await db().collection('activities').add({
@@ -363,6 +370,7 @@ async function logActivity(userId, action, entityType, entityId, summary, metada
   }
 }
 
+// JWT check: every protected API route passes through this middleware.
 async function authenticate(req, res, next) {
   try {
     const token = getBearerToken(req);
@@ -388,6 +396,7 @@ async function authenticate(req, res, next) {
   }
 }
 
+// RBAC check: normal users stop here before admin-only routes run.
 function requireAdmin(req, res, next) {
   if (req.profile?.role !== 'admin') {
     return next(new HttpError(403, 'Admin access is required.'));
@@ -396,6 +405,7 @@ function requireAdmin(req, res, next) {
   return next();
 }
 
+// Ownership check stops users from using another user's categories.
 async function assertCategoryOwner(categoryId, ownerId) {
   if (!categoryId) {
     return;
@@ -439,6 +449,7 @@ async function getPromptWithCategory(promptDoc, categoryMap = null) {
   return mapPrompt(prompt, category);
 }
 
+// Server-side filtering mirrors the frontend filters for API flexibility.
 function filterAndSortPrompts(prompts, query) {
   const search = String(query.search || '').trim().toLowerCase();
   const promptType = String(query.promptType || '').trim();
@@ -481,6 +492,7 @@ function filterAndSortPrompts(prompts, query) {
   });
 }
 
+// One vault request returns prompts, categories, and stats together.
 async function getVaultData(ownerId, query = {}) {
   const [promptSnapshot, categories] = await Promise.all([
     db().collection('prompts').where('ownerId', '==', ownerId).get(),
@@ -508,6 +520,7 @@ app.get('/api/health', (req, res) => {
   res.json({ data: { ok: true } });
 });
 
+// Auth session creates or refreshes the Firestore profile after login.
 app.post(
   '/api/auth/session',
   authenticate,
@@ -546,6 +559,7 @@ app.get(
   })
 );
 
+// Vault load is owner-scoped so users only receive their own records.
 app.get(
   '/api/vault',
   authenticate,
@@ -563,6 +577,7 @@ app.post(
   })
 );
 
+// Prompt CRUD routes create, read, update, delete, and track copies.
 app.get(
   '/api/prompts',
   authenticate,
@@ -695,6 +710,7 @@ app.post(
   })
 );
 
+// Category CRUD routes organise prompts without crossing user accounts.
 app.get(
   '/api/categories',
   authenticate,
@@ -829,6 +845,7 @@ app.get(
   })
 );
 
+// Admin user routes let admins read accounts and soft-delete users.
 app.get(
   '/api/users',
   authenticate,
@@ -927,6 +944,7 @@ app.delete(
   })
 );
 
+// Activity history supports the admin profile/history requirement.
 app.get(
   '/api/activities',
   authenticate,
