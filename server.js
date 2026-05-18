@@ -449,6 +449,44 @@ async function getPromptWithCategory(promptDoc, categoryMap = null) {
   return mapPrompt(prompt, category);
 }
 
+async function deleteAuthAccount(userId) {
+  try {
+    await auth().deleteUser(userId);
+  } catch (error) {
+    if (error.code !== 'auth/user-not-found') {
+      throw error;
+    }
+  }
+}
+
+async function deleteOwnedDocuments(collectionName, ownerId) {
+  let deletedCount = 0;
+
+  while (true) {
+    const snapshot = await db()
+      .collection(collectionName)
+      .where('ownerId', '==', ownerId)
+      .limit(450)
+      .get();
+
+    if (snapshot.empty) {
+      return deletedCount;
+    }
+
+    const batch = db().batch();
+    snapshot.docs.forEach((ownedDoc) => {
+      batch.delete(ownedDoc.ref);
+    });
+    await batch.commit();
+
+    deletedCount += snapshot.size;
+
+    if (snapshot.size < 450) {
+      return deletedCount;
+    }
+  }
+}
+
 // Server-side filtering mirrors the frontend filters for API flexibility.
 function filterAndSortPrompts(prompts, query) {
   const search = String(query.search || '').trim().toLowerCase();
@@ -845,7 +883,7 @@ app.get(
   })
 );
 
-// Admin user routes let admins read accounts and soft-delete users.
+// Admin user routes let admins read, deactivate, and permanently delete accounts.
 app.get(
   '/api/users',
   authenticate,
@@ -931,15 +969,19 @@ app.delete(
       throw new HttpError(404, 'User not found.');
     }
 
-    await Promise.all([
-      userRef.update({
-        isActive: false,
-        updatedAt: serverTimestamp(),
-      }),
-      auth().updateUser(req.params.id, { disabled: true }),
+    await deleteAuthAccount(req.params.id);
+
+    const [deletedPrompts, deletedCategories] = await Promise.all([
+      deleteOwnedDocuments('prompts', req.params.id),
+      deleteOwnedDocuments('categories', req.params.id),
     ]);
 
-    await logActivity(req.profile.id, 'delete', 'user', req.params.id, `Deleted user "${existing.email}"`);
+    await userRef.delete();
+
+    await logActivity(req.profile.id, 'delete', 'user', req.params.id, `Deleted user account "${existing.email}"`, {
+      deletedCategories,
+      deletedPrompts,
+    });
     res.json({ data: { deleted: true } });
   })
 );

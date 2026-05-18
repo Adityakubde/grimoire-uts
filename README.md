@@ -28,7 +28,7 @@ Prompt templates are easy to lose when they are spread across notes apps, chat h
 | Rubric Area | Evidence in this project |
 |---|---|
 | Suitability and comprehensiveness | Grimoire is a realistic prompt-management app with account ownership, categories, search, reuse tracking, and admin oversight. |
-| Three CRUD entities | `users`, `prompts`, and `categories` each support create, read, update, and delete/soft-delete behavior. |
+| Three CRUD entities | `users`, `prompts`, and `categories` each support create, read, update, and delete/deactivate behavior. |
 | Business, design, and performance | Users own their vault records, categories organise prompts, admins manage accounts, and live search runs in React state without page reloads. |
 | README | This file includes the problem, stack, dependencies, setup steps, folder structure, API summary, rubric mapping, and workload allocation. |
 | Workload allocation | The project is documented as an individual submission by Aditya with file-area ownership listed below. |
@@ -45,7 +45,7 @@ Prompt templates are easy to lose when they are spread across notes apps, chat h
 | Backend + database | Express API in `server.js`; Cloud Firestore collections store app data |
 | Registration/login | Firebase Authentication email/password flow in `AuthPanel.jsx` |
 | Password hashing + JWT | Firebase Authentication manages password storage and issues Firebase ID tokens, which are JWTs |
-| CRUD entity 1 | Users: create profile on first session, read list/detail, update account fields through the API, and soft delete by disabling account |
+| CRUD entity 1 | Users: create profile on first session, read list/detail, update account fields through the API, deactivate by disabling login, and permanently delete accounts |
 | CRUD entity 2 | Prompts: create, read, update, delete, copy-count tracking |
 | CRUD entity 3 | Categories: create, read, rename/update, delete |
 | Live search | Existing search bar filters prompt cards immediately through React state |
@@ -90,7 +90,7 @@ grimoire-uts/
 3. Create, rename, and delete a category.
 4. Register another user and confirm they can only access their own vault.
 5. Log back in as admin and open the Admin Panel.
-6. Delete a normal user account and review recent activity logs.
+6. Make a normal user inactive, then delete a normal user account and review recent activity logs.
 7. Confirm a normal user cannot access admin routes.
 
 
@@ -127,7 +127,8 @@ Individual submission by Aditya.
 - Passwords are handled by Firebase Authentication and are never stored in Firestore.
 - The Firebase Admin private key is only used by `server.js`.
 - Admin emails are configured in server-only `.env`; admin routes check `profile.role === "admin"` before managing users.
-- User deletion is a soft delete using `isActive = false` plus Firebase account disabling.
+- The Inactive admin action sets `isActive = false` and disables the Firebase Auth user.
+- The Delete admin action permanently removes the Firebase Auth user, their Firestore profile, and their owned vault records.
 
 
 ## References

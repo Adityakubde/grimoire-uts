@@ -375,9 +375,24 @@ export default function VaultApp({ getToken, profile, onLogout }) {
     showToast('Category Deleted');
   }
 
-  // User delete is a soft delete that disables the account.
-  async function softDeleteUser(user) {
-    if (!window.confirm(`Delete ${user.email}? This disables the account.`)) {
+  // Inactive keeps the account record but blocks future logins.
+  async function deactivateUser(user) {
+    if (!window.confirm(`Make ${user.email} inactive? They will not be able to log in.`)) {
+      return;
+    }
+
+    await apiRequest(`/api/users/${user.id}`, {
+      method: 'PATCH',
+      tokenProvider: getToken,
+      body: { isActive: false },
+    });
+    await loadAdmin();
+    showToast('User Inactive');
+  }
+
+  // Delete permanently removes the account and its owned vault records.
+  async function deleteUser(user) {
+    if (!window.confirm(`Delete ${user.email} permanently? This removes the account and their saved vault records.`)) {
       return;
     }
 
@@ -569,8 +584,9 @@ export default function VaultApp({ getToken, profile, onLogout }) {
           activities={state.activities}
           currentUserId={profile.id}
           loading={state.loadingAdmin}
+          onDeactivateUser={deactivateUser}
+          onDeleteUser={deleteUser}
           onRefresh={loadAdmin}
-          onSoftDeleteUser={softDeleteUser}
           users={state.users}
         />
       ) : (

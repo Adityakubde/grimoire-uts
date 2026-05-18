@@ -4,8 +4,9 @@ export default function AdminPanel({
   activities,
   currentUserId,
   loading,
+  onDeactivateUser,
+  onDeleteUser,
   onRefresh,
-  onSoftDeleteUser,
   users,
 }) {
   return (
@@ -51,10 +52,9 @@ export default function AdminPanel({
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
                 {users.map((user) => {
-                  // Current admin and already deleted users cannot be deleted again.
                   const isCurrentUser = user.id === currentUserId;
-                  const canDelete = user.isActive && !isCurrentUser;
-                  const actionLabel = isCurrentUser ? 'Current' : user.isActive ? 'Delete' : 'Deleted';
+                  const canDeactivate = user.isActive && !isCurrentUser;
+                  const canDelete = !isCurrentUser;
 
                   return (
                     <tr key={user.id} className="font-sans text-sm">
@@ -75,15 +75,27 @@ export default function AdminPanel({
                         <div className="flex justify-end gap-2">
                           <button
                             className={`border px-3 py-2 text-[10px] uppercase tracking-widest ${
+                              canDeactivate
+                                ? 'border-outline-variant/40 text-[#b8b0c4] hover:bg-surface-container'
+                                : 'border-outline-variant/20 text-outline-variant cursor-not-allowed opacity-60'
+                            }`}
+                            disabled={!canDeactivate}
+                            onClick={() => onDeactivateUser(user)}
+                            type="button"
+                          >
+                            {isCurrentUser ? 'Current' : 'Inactive'}
+                          </button>
+                          <button
+                            className={`border px-3 py-2 text-[10px] uppercase tracking-widest ${
                               canDelete
                                 ? 'border-error/30 text-error hover:bg-error/10'
                                 : 'border-outline-variant/20 text-outline-variant cursor-not-allowed opacity-60'
                             }`}
                             disabled={!canDelete}
-                            onClick={() => onSoftDeleteUser(user)}
+                            onClick={() => onDeleteUser(user)}
                             type="button"
                           >
-                            {actionLabel}
+                            Delete
                           </button>
                         </div>
                       </td>
